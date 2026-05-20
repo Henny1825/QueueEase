@@ -227,10 +227,10 @@ const initQueue = () => {
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 const fmtTime = (d) => d.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
-const waitMins = (ticket, tickets, avgMins) => {
-  const pos = tickets.filter(t=>t.status==="waiting").findIndex(t=>t.id===ticket.id);
-  return pos < 0 ? 0 : (pos+1)*avgMins;
-};
+// const waitMins = (ticket, tickets, avgMins) => {
+//   const pos = tickets.filter(t=>t.status==="waiting").findIndex(t=>t.id===ticket.id);
+//   return pos < 0 ? 0 : (pos+1)*avgMins;
+// };
 
 // ── Icon components ──────────────────────────────────────────────────────────
 const Icon = ({name, size=16, color="currentColor"}) => {
@@ -265,10 +265,10 @@ const USSDSim = ({ orgs, onJoin }) => {
   const [result, setResult] = useState(null);
   const ref = useRef();
 
-  const MENU = {
-    home: { title:"CON Welcome to QueueEase\n\n1. Join a Queue\n2. Check My Position\n3. Cancel Ticket\n0. Exit", options:{"1":"join","2":"check","3":"cancel","0":"exit"} },
-    join: { title:"CON Select Organization:\n\n1. Ghana Health Service\n2. DVLA Licensing\n3. GRA Tax Office\n4. National ID Authority", options:{"1":0,"2":1,"3":2,"4":3} },
-  };
+  // const MENU = {
+  //   home: { title:"CON Welcome to QueueEase\n\n1. Join a Queue\n2. Check My Position\n3. Cancel Ticket\n0. Exit", options:{"1":"join","2":"check","3":"cancel","0":"exit"} },
+  //   join: { title:"CON Select Organization:\n\n1. Ghana Health Service\n2. DVLA Licensing\n3. GRA Tax Office\n4. National ID Authority", options:{"1":0,"2":1,"3":2,"4":3} },
+  // };
 
   const handleSend = () => {
     const v = input.trim();
@@ -469,8 +469,8 @@ export default function QueueEase() {
   const [queue, setQueue] = useState(initQueue);
   const [myTickets, setMyTickets] = useState([]);
   const [toast, setToast] = useState(null);
-  const [tick, setTick] = useState(0);
-
+  const [, setTick] = useState(0); //tick was removed from the first item in the array
+   
   // join form state
   const [jOrgId, setJOrgId] = useState(ORGS[0].id);
   const [jSvc, setJSvc] = useState(ORGS[0].services[0]);
