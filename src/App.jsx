@@ -1,11 +1,25 @@
 import './App.css';
 import { useState, useEffect, useRef } from "react";
+import CitizenLanding from "./pages/CitizenLanding"
+import OfficerLanding from "./pages/OfficerLanding"
+import ManagerLanding from "./pages/ManagerLanding.jsx"
+
 
 // ── palette & fonts via inline style injection ──────────────────────────────
 // const GlobalStyle = () => (
 //   <style>{`
 //    </style>
 // );
+
+const navItems = [
+  {id:"landing", icon:"home", label:"Home"},  // ← ADD THIS
+  {id:"customer", icon:"ticket", label:"Join Queue"},
+  {id:"admin",    icon:"users",  label:"Staff Dashboard"},
+  {id:"analytics",icon:"chart",  label:"Analytics"},
+  {id:"ussd",     icon:"phone",  label:"USSD Sim"},
+  {id:"whatsapp", icon:"bell",   label:"WhatsApp Bot"},
+];
+
 
 // ── seed data ────────────────────────────────────────────────────────────────
 const ORGS = [
@@ -368,13 +382,13 @@ export default function QueueEase() {
   const totalServed  = Object.values(queue).flat().reduce((a,s)=>a+s.tickets.filter(t=>t.status==="done").length,0);
   const totalOrgs    = ORGS.length;
 
-  const navItems = [
-    {id:"customer", icon:"ticket", label:"Join Queue"},
-    {id:"admin",    icon:"users",  label:"Staff Dashboard"},
-    {id:"analytics",icon:"chart",  label:"Analytics"},
-    {id:"ussd",     icon:"phone",  label:"USSD Sim"},
-    {id:"whatsapp", icon:"bell",   label:"WhatsApp Bot"},
-  ];
+  // const navItems = [
+  //   {id:"customer", icon:"ticket", label:"Join Queue"},
+  //   {id:"admin",    icon:"users",  label:"Staff Dashboard"},
+  //   {id:"analytics",icon:"chart",  label:"Analytics"},
+  //   {id:"ussd",     icon:"phone",  label:"USSD Sim"},
+  //   {id:"whatsapp", icon:"bell",   label:"WhatsApp Bot"},
+  // ];
 
   return (
     <>
