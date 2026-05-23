@@ -202,7 +202,6 @@ const GlobalStyle = () => (
  );
 
 const navItems = [
-  {id:"landing", icon:"home", label:"Home"},  // ← ADD THIS
   {id:"customer", icon:"ticket", label:"Join Queue"},
   {id:"admin",    icon:"users",  label:"Staff Dashboard"},
   {id:"analytics",icon:"chart",  label:"Analytics"},
