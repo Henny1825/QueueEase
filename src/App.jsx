@@ -1,15 +1,205 @@
 import './App.css';
 import { useState, useEffect, useRef } from "react";
-import CitizenLanding from "./pages/CitizenLanding"
+import CitizenLanding from "./pages/UserLanding"
 import OfficerLanding from "./pages/OfficerLanding"
 import ManagerLanding from "./pages/ManagerLanding.jsx"
 
 
 // ── palette & fonts via inline style injection ──────────────────────────────
-// const GlobalStyle = () => (
-//   <style>{`
-//    </style>
-// );
+const GlobalStyle = () => (
+  <style>{`
+     @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink:    #0d0d0d;
+      --paper:  #f5f2ec;
+      --cream:  #ede9e0;
+      --teal:   #00897b;
+      --teal2:  #00bfa5;
+      --amber:  #ffb300;
+      --rose:   #e53935;
+      --muted:  #6b6860;
+      --border: #d6d1c7;
+      --card:   #ffffff;
+      --radius: 12px;
+      --shadow: 0 2px 16px rgba(0,0,0,0.08);
+    }
+
+    body { font-family: 'DM Sans', sans-serif; background: var(--paper); color: var(--ink); }
+
+    .syne   { font-family: 'Syne', sans-serif; }
+    .mono   { font-family: 'DM Mono', monospace; }
+
+    /* scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--cream); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    /* animations */
+    @keyframes fadeUp   { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:none; } }
+    @keyframes pulse    { 0%,100%{opacity:1} 50%{opacity:.45} }
+    @keyframes spin     { to { transform: rotate(360deg); } }
+    @keyframes ticker   { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+    @keyframes pop      { 0%{transform:scale(.85);opacity:0} 70%{transform:scale(1.04)} 100%{transform:scale(1);opacity:1} }
+
+    .fade-up   { animation: fadeUp .45s ease both; }
+    .pop       { animation: pop .4s cubic-bezier(.34,1.56,.64,1) both; }
+    .spinning  { animation: spin 1s linear infinite; }
+    .pulsing   { animation: pulse 1.6s ease-in-out infinite; }
+
+    /* ticket stamp */
+    .stamp {
+      display: inline-block;
+      border: 3px solid var(--teal);
+      border-radius: 6px;
+      padding: 2px 10px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--teal);
+    }
+    .stamp.rose { border-color: var(--rose); color: var(--rose); }
+    .stamp.amber{ border-color: var(--amber); color: #9a6e00; }
+
+    /* tab pill */
+    .tab-pill {
+      display: flex; gap: 4px;
+      background: var(--cream);
+      border-radius: 999px;
+      padding: 4px;
+      border: 1px solid var(--border);
+    }
+    .tab-pill button {
+      border: none; cursor: pointer;
+      border-radius: 999px;
+      padding: 7px 20px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      background: transparent;
+      color: var(--muted);
+      transition: all .2s;
+    }
+    .tab-pill button.active {
+      background: var(--teal);
+      color: #fff;
+    }
+
+    /* card */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+
+    /* btn */
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      border: none; cursor: pointer;
+      border-radius: 8px;
+      padding: 11px 22px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px; font-weight: 500;
+      transition: all .18s;
+    }
+    .btn-primary   { background: var(--teal); color: #fff; }
+    .btn-primary:hover { background: var(--teal2); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,137,123,.3); }
+    .btn-ghost     { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+    .btn-ghost:hover { background: var(--cream); color: var(--ink); }
+    .btn-danger    { background: #ffeaea; color: var(--rose); border: 1px solid #ffc8c8; }
+    .btn-danger:hover { background: #ffe0e0; }
+    .btn:disabled  { opacity: .45; cursor: not-allowed; transform: none !important; }
+
+    /* input */
+    .field { display:flex; flex-direction:column; gap:5px; }
+    .field label { font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); }
+    .field input, .field select, .field textarea {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-family: 'DM Sans', sans-serif;
+      font-size:14px; color: var(--ink);
+      background: var(--paper);
+      outline: none;
+      transition: border-color .18s;
+    }
+    .field input:focus, .field select:focus { border-color: var(--teal); }
+
+    /* live dot */
+    .live-dot {
+      width:8px; height:8px; border-radius:50%;
+      background: var(--teal2);
+      box-shadow: 0 0 0 3px rgba(0,191,165,.25);
+      animation: pulse 1.6s ease-in-out infinite;
+    }
+
+    /* queue bar */
+    .q-bar { height:8px; border-radius:4px; background:var(--cream); overflow:hidden; }
+    .q-bar-fill { height:100%; border-radius:4px; background: linear-gradient(90deg, var(--teal), var(--teal2)); transition: width .6s ease; }
+
+    /* table */
+    .tbl { width:100%; border-collapse: collapse; font-size:13px; }
+    .tbl th { padding: 10px 14px; text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); border-bottom:1px solid var(--border); font-weight:600; }
+    .tbl td { padding: 12px 14px; border-bottom: 1px solid var(--cream); vertical-align:middle; }
+    .tbl tr:last-child td { border-bottom: none; }
+    .tbl tr:hover td { background: var(--paper); }
+
+    /* ticket card */
+    .ticket-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      position: relative;
+    }
+    .ticket-card::before {
+      content:'';
+      display:block;
+      height:6px;
+      background: linear-gradient(90deg, var(--teal), var(--teal2), var(--amber));
+    }
+
+    /* notch circles on ticket */
+    .notch { width:22px;height:22px;border-radius:50%;background:var(--paper);border:1px solid var(--border); }
+
+    /* channel badge */
+    .ch-badge {
+      display:inline-flex; align-items:center; gap:5px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 11px; font-weight:600;
+      background: var(--cream);
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    /* stat box */
+    .stat-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+    .stat-val { font-family:'Syne',sans-serif; font-size:32px; font-weight:800; line-height:1; }
+    .stat-lbl { font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-top:4px; }
+
+    /* ticker tape */
+    .ticker-wrap { overflow:hidden; background:var(--ink); color:#fff; padding:6px 0; }
+    .ticker-inner { display:inline-flex; gap:60px; white-space:nowrap; animation: ticker 28s linear infinite; }
+    .ticker-item  { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:.1em; opacity:.75; }
+
+    /* responsive */
+    @media(max-width:700px) {
+      .hide-sm { display:none !important; }
+      .col-2   { grid-template-columns:1fr !important; }
+    }
+  `}
+   </style>
+);
 
 const navItems = [
   {id:"landing", icon:"home", label:"Home"},  // ← ADD THIS
@@ -23,9 +213,9 @@ const navItems = [
 
 // ── seed data ────────────────────────────────────────────────────────────────
 const ORGS = [
-  { id:"GHS001", name:"Ghana Health Service – Accra", services:["General OPD","Lab Tests","Pharmacy","Specialist Consult"], avgMins:8 },
+  { id:"GHS001", name:"Ganah Health Service – Accra", services:["General OPD","Lab Tests","Pharmacy","Specialist Consult"], avgMins:8 },
   { id:"DVLA02", name:"DVLA Licensing Office", services:["New License","Renewal","Road Worthiness","Plate Collection"], avgMins:12 },
-  { id:"GRA003", name:"Ghana Revenue Authority", services:["Tax Clearance","VAT Registration","TIN Issuance","Customs"], avgMins:15 },
+  { id:"GRA003", name:"Ganah Revenue Authority", services:["Tax Clearance","VAT Registration","TIN Issuance","Customs"], avgMins:15 },
   { id:"NIA004", name:"National ID Authority", services:["New Registration","Replacement Card","Address Update"], avgMins:10 },
 ];
 
@@ -93,7 +283,7 @@ const USSDSim = ({ orgs, onJoin }) => {
 
   // const MENU = {
   //   home: { title:"CON Welcome to QueueEase\n\n1. Join a Queue\n2. Check My Position\n3. Cancel Ticket\n0. Exit", options:{"1":"join","2":"check","3":"cancel","0":"exit"} },
-  //   join: { title:"CON Select Organization:\n\n1. Ghana Health Service\n2. DVLA Licensing\n3. GRA Tax Office\n4. National ID Authority", options:{"1":0,"2":1,"3":2,"4":3} },
+  //   join: { title:"CON Select Organization:\n\n1. Ganah Health Service\n2. DVLA Licensing\n3. GRA Tax Office\n4. National ID Authority", options:{"1":0,"2":1,"3":2,"4":3} },
   // };
 
   const handleSend = () => {
@@ -392,6 +582,7 @@ export default function QueueEase() {
 
   return (
     <>
+      <GlobalStyle/>
       <div style={{minHeight:"100vh", display:"flex", flexDirection:"column"}}>
 
         {/* TICKER TAPE */}
@@ -484,7 +675,14 @@ export default function QueueEase() {
 
         {/* MAIN */}
         <main style={{flex:1, padding:"28px 20px", maxWidth:1100, margin:"0 auto", width:"100%"}}>
-
+          {view === "landing" && <CitizenLanding onStartQueuing={() => setView("landing")} />}
+          {view === "landing" && (
+  <>
+    <CitizenLanding onStartQueuing={() => setView("customer")} />
+    <OfficerLanding onLoginAsOfficer={() => setView("admin")} />
+    <ManagerLanding onViewAnalytics={() => setView("analytics")} />
+  </>
+)}
           {/* ── CUSTOMER VIEW ─────────────────────────────────────── */}
           {view==="customer" && (
             <div className="fade-up">
@@ -835,7 +1033,7 @@ export default function QueueEase() {
                     ))}
                   </div>
                   <div style={{marginTop:16,padding:14,background:"#e8f5e9",borderRadius:8,border:"1px solid #a5d6a7",fontSize:12}}>
-                    <strong>Provider recommendation:</strong> Africa's Talking (sandbox free), Hubtel (Ghana), Infobip for USSD gateway integration.
+                    <strong>Provider recommendation:</strong> Africa's Talking (sandbox free), Hubtel (Ganah), Infobip for USSD gateway integration.
                   </div>
                 </div>
               </div>
@@ -848,7 +1046,7 @@ export default function QueueEase() {
               <div style={{marginBottom:28}}>
                 <h1 className="syne" style={{fontSize:28,fontWeight:800}}>WhatsApp Bot</h1>
                 <p style={{color:"var(--muted)",fontSize:14,marginTop:4}}>
-                  Try the live bot: type <strong>JOIN GHS001</strong> to queue at Ghana Health Service.
+                  Try the live bot: type <strong>JOIN GHS001</strong> to queue at Ganah Health Service.
                 </p>
               </div>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:28,alignItems:"start"}} className="col-2">
