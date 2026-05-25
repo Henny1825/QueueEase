@@ -1,9 +1,14 @@
+import './App.css';
 import { useState, useEffect, useRef } from "react";
+import CitizenLanding from "./pages/UserLanding"
+import OfficerLanding from "./pages/OfficerLanding"
+import ManagerLanding from "./pages/ManagerLanding.jsx"
+
 
 // ── palette & fonts via inline style injection ──────────────────────────────
 const GlobalStyle = () => (
   <style>{`
-    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap');
+     @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap');
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -192,14 +197,25 @@ const GlobalStyle = () => (
       .hide-sm { display:none !important; }
       .col-2   { grid-template-columns:1fr !important; }
     }
-  `}</style>
+  `}
+   </style>
 );
+
+const navItems = [
+  {id:"landing", icon:"home", label:"Home"},  // ← ADD THIS
+  {id:"customer", icon:"ticket", label:"Join Queue"},
+  {id:"admin",    icon:"users",  label:"Staff Dashboard"},
+  {id:"analytics",icon:"chart",  label:"Analytics"},
+  {id:"ussd",     icon:"phone",  label:"USSD Sim"},
+  {id:"whatsapp", icon:"bell",   label:"WhatsApp Bot"},
+];
+
 
 // ── seed data ────────────────────────────────────────────────────────────────
 const ORGS = [
-  { id:"GHS001", name:"Ghana Health Service – Accra", services:["General OPD","Lab Tests","Pharmacy","Specialist Consult"], avgMins:8 },
+  { id:"GHS001", name:"Ganah Health Service – Accra", services:["General OPD","Lab Tests","Pharmacy","Specialist Consult"], avgMins:8 },
   { id:"DVLA02", name:"DVLA Licensing Office", services:["New License","Renewal","Road Worthiness","Plate Collection"], avgMins:12 },
-  { id:"GRA003", name:"Ghana Revenue Authority", services:["Tax Clearance","VAT Registration","TIN Issuance","Customs"], avgMins:15 },
+  { id:"GRA003", name:"Ganah Revenue Authority", services:["Tax Clearance","VAT Registration","TIN Issuance","Customs"], avgMins:15 },
   { id:"NIA004", name:"National ID Authority", services:["New Registration","Replacement Card","Address Update"], avgMins:10 },
 ];
 
@@ -227,10 +243,10 @@ const initQueue = () => {
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 const fmtTime = (d) => d.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
-const waitMins = (ticket, tickets, avgMins) => {
-  const pos = tickets.filter(t=>t.status==="waiting").findIndex(t=>t.id===ticket.id);
-  return pos < 0 ? 0 : (pos+1)*avgMins;
-};
+// const waitMins = (ticket, tickets, avgMins) => {
+//   const pos = tickets.filter(t=>t.status==="waiting").findIndex(t=>t.id===ticket.id);
+//   return pos < 0 ? 0 : (pos+1)*avgMins;
+// };
 
 // ── Icon components ──────────────────────────────────────────────────────────
 const Icon = ({name, size=16, color="currentColor"}) => {
@@ -265,10 +281,10 @@ const USSDSim = ({ orgs, onJoin }) => {
   const [result, setResult] = useState(null);
   const ref = useRef();
 
-  const MENU = {
-    home: { title:"CON Welcome to QueueEase\n\n1. Join a Queue\n2. Check My Position\n3. Cancel Ticket\n0. Exit", options:{"1":"join","2":"check","3":"cancel","0":"exit"} },
-    join: { title:"CON Select Organization:\n\n1. Ghana Health Service\n2. DVLA Licensing\n3. GRA Tax Office\n4. National ID Authority", options:{"1":0,"2":1,"3":2,"4":3} },
-  };
+  // const MENU = {
+  //   home: { title:"CON Welcome to QueueEase\n\n1. Join a Queue\n2. Check My Position\n3. Cancel Ticket\n0. Exit", options:{"1":"join","2":"check","3":"cancel","0":"exit"} },
+  //   join: { title:"CON Select Organization:\n\n1. Ganah Health Service\n2. DVLA Licensing\n3. GRA Tax Office\n4. National ID Authority", options:{"1":0,"2":1,"3":2,"4":3} },
+  // };
 
   const handleSend = () => {
     const v = input.trim();
@@ -469,8 +485,8 @@ export default function QueueEase() {
   const [queue, setQueue] = useState(initQueue);
   const [myTickets, setMyTickets] = useState([]);
   const [toast, setToast] = useState(null);
-  const [tick, setTick] = useState(0);
-
+  const [, setTick] = useState(0); //tick was removed from the first item in the array
+   
   // join form state
   const [jOrgId, setJOrgId] = useState(ORGS[0].id);
   const [jSvc, setJSvc] = useState(ORGS[0].services[0]);
@@ -556,13 +572,13 @@ export default function QueueEase() {
   const totalServed  = Object.values(queue).flat().reduce((a,s)=>a+s.tickets.filter(t=>t.status==="done").length,0);
   const totalOrgs    = ORGS.length;
 
-  const navItems = [
-    {id:"customer", icon:"ticket", label:"Join Queue"},
-    {id:"admin",    icon:"users",  label:"Staff Dashboard"},
-    {id:"analytics",icon:"chart",  label:"Analytics"},
-    {id:"ussd",     icon:"phone",  label:"USSD Sim"},
-    {id:"whatsapp", icon:"bell",   label:"WhatsApp Bot"},
-  ];
+  // const navItems = [
+  //   {id:"customer", icon:"ticket", label:"Join Queue"},
+  //   {id:"admin",    icon:"users",  label:"Staff Dashboard"},
+  //   {id:"analytics",icon:"chart",  label:"Analytics"},
+  //   {id:"ussd",     icon:"phone",  label:"USSD Sim"},
+  //   {id:"whatsapp", icon:"bell",   label:"WhatsApp Bot"},
+  // ];
 
   return (
     <>
@@ -659,7 +675,14 @@ export default function QueueEase() {
 
         {/* MAIN */}
         <main style={{flex:1, padding:"28px 20px", maxWidth:1100, margin:"0 auto", width:"100%"}}>
-
+          {view === "landing" && <CitizenLanding onStartQueuing={() => setView("landing")} />}
+          {view === "landing" && (
+  <>
+    <CitizenLanding onStartQueuing={() => setView("customer")} />
+    <OfficerLanding onLoginAsOfficer={() => setView("admin")} />
+    <ManagerLanding onViewAnalytics={() => setView("analytics")} />
+  </>
+)}
           {/* ── CUSTOMER VIEW ─────────────────────────────────────── */}
           {view==="customer" && (
             <div className="fade-up">
@@ -1010,7 +1033,7 @@ export default function QueueEase() {
                     ))}
                   </div>
                   <div style={{marginTop:16,padding:14,background:"#e8f5e9",borderRadius:8,border:"1px solid #a5d6a7",fontSize:12}}>
-                    <strong>Provider recommendation:</strong> Africa's Talking (sandbox free), Hubtel (Ghana), Infobip for USSD gateway integration.
+                    <strong>Provider recommendation:</strong> Africa's Talking (sandbox free), Hubtel (Ganah), Infobip for USSD gateway integration.
                   </div>
                 </div>
               </div>
@@ -1023,7 +1046,7 @@ export default function QueueEase() {
               <div style={{marginBottom:28}}>
                 <h1 className="syne" style={{fontSize:28,fontWeight:800}}>WhatsApp Bot</h1>
                 <p style={{color:"var(--muted)",fontSize:14,marginTop:4}}>
-                  Try the live bot: type <strong>JOIN GHS001</strong> to queue at Ghana Health Service.
+                  Try the live bot: type <strong>JOIN GHS001</strong> to queue at Ganah Health Service.
                 </p>
               </div>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:28,alignItems:"start"}} className="col-2">
