@@ -209,8 +209,8 @@ const navItems = [
   {id:"customer", icon:"ticket", label:"Join Queue"},
   {id:"admin",    icon:"users",  label:"Staff Dashboard"},
   {id:"analytics",icon:"chart",  label:"Analytics"},
-  {id:"ussd",     icon:"phone",  label:"USSD Sim"},
-  {id:"whatsapp", icon:"bell",   label:"WhatsApp Bot"},
+  // {id:"ussd",     icon:"phone",  label:"USSD Sim"},
+  // {id:"whatsapp", icon:"bell",   label:"WhatsApp Bot"},
 ];
 
 // ── seed data ────────────────────────────────────────────────────────────────
@@ -1004,91 +1004,6 @@ export default function QueueEase() {
               </div>
             </div>
           )}
-
-          {/* ── USSD SIM VIEW ────────────────────────────────────── */}
-          {view==="ussd" && (
-            <div className="fade-up">
-              <div style={{marginBottom:28}}>
-                <h1 className="syne" style={{fontSize:28,fontWeight:800}}>USSD Simulator</h1>
-                <p style={{color:"var(--muted)",fontSize:14,marginTop:4}}>
-                  Simulates the *384*123# USSD flow — works on any mobile phone, no internet needed.
-                </p>
-              </div>
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:28,alignItems:"start"}} className="col-2">
-                <USSDSim orgs={ORGS} onJoin={joinQueue}/>
-                <div className="card" style={{padding:24}}>
-                  <h3 className="syne" style={{fontWeight:700,fontSize:16,marginBottom:16}}>How USSD Works</h3>
-                  <div style={{display:"flex",flexDirection:"column",gap:12}}>
-                    {[
-                      {icon:"📟", title:"Dial Code", desc:"Customer dials *384*ORGCODE# on any GSM phone — no smartphone or internet required."},
-                      {icon:"📋", title:"Menu Navigation", desc:"A simple numbered menu lets them select service, join queue, or check position."},
-                      {icon:"🎟️", title:"Token Issued", desc:"A unique token is returned on screen and an SMS confirmation is sent to the phone."},
-                      {icon:"📱", title:"SMS Updates", desc:"Automated SMS alerts when they move up in queue or are called to counter."},
-                    ].map(s=>(
-                      <div key={s.title} style={{display:"flex",gap:12,padding:12,background:"var(--paper)",borderRadius:8,border:"1px solid var(--border)"}}>
-                        <span style={{fontSize:20}}>{s.icon}</span>
-                        <div>
-                          <div style={{fontWeight:600,fontSize:13,marginBottom:2}}>{s.title}</div>
-                          <div style={{fontSize:12,color:"var(--muted)",lineHeight:1.5}}>{s.desc}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div style={{marginTop:16,padding:14,background:"#e8f5e9",borderRadius:8,border:"1px solid #a5d6a7",fontSize:12}}>
-                    <strong>Provider recommendation:</strong> Africa's Talking (sandbox free), Hubtel (Ganah), Infobip for USSD gateway integration.
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ── WHATSAPP SIM VIEW ────────────────────────────────── */}
-          {view==="whatsapp" && (
-            <div className="fade-up">
-              <div style={{marginBottom:28}}>
-                <h1 className="syne" style={{fontSize:28,fontWeight:800}}>WhatsApp Bot</h1>
-                <p style={{color:"var(--muted)",fontSize:14,marginTop:4}}>
-                  Try the live bot: type <strong>JOIN GHS001</strong> to queue at Ganah Health Service.
-                </p>
-              </div>
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:28,alignItems:"start"}} className="col-2">
-                <WhatsAppSim orgs={ORGS} onJoin={joinQueue}/>
-                <div style={{display:"flex",flexDirection:"column",gap:16}}>
-                  <div className="card" style={{padding:20}}>
-                    <h3 className="syne" style={{fontWeight:700,fontSize:15,marginBottom:14}}>Org Codes</h3>
-                    <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                      {ORGS.map(o=>(
-                        <div key={o.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 12px",background:"var(--paper)",borderRadius:8,border:"1px solid var(--border)"}}>
-                          <span style={{fontSize:13,fontWeight:500}}>{o.name.split("–")[0].trim()}</span>
-                          <span className="mono" style={{fontSize:12,background:"var(--teal)",color:"#fff",padding:"3px 8px",borderRadius:4}}>{o.id}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="card" style={{padding:20}}>
-                    <h3 className="syne" style={{fontWeight:700,fontSize:15,marginBottom:12}}>Bot Commands</h3>
-                    <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                      {[
-                        {cmd:"JOIN [CODE]",  desc:"Join an org's queue"},
-                        {cmd:"POS",          desc:"Check your position"},
-                        {cmd:"CANCEL",       desc:"Cancel your ticket"},
-                      ].map(c=>(
-                        <div key={c.cmd} style={{display:"flex",gap:10,alignItems:"center"}}>
-                          <code style={{background:"var(--ink)",color:"var(--teal2)",padding:"3px 10px",borderRadius:5,fontSize:12,fontFamily:"'DM Mono',monospace",whiteSpace:"nowrap"}}>{c.cmd}</code>
-                          <span style={{fontSize:13,color:"var(--muted)"}}>{c.desc}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="card" style={{padding:20}}>
-                    <h3 className="syne" style={{fontWeight:700,fontSize:15,marginBottom:8}}>Integration</h3>
-                    <p style={{fontSize:13,color:"var(--muted)",lineHeight:1.6}}>Use <strong>Meta WhatsApp Business API</strong> or <strong>Twilio WhatsApp Sandbox</strong> for real deployment. A webhook receives messages, routes them to your queue engine, and replies programmatically.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
         </main>
 
         {/* FOOTER */}
