@@ -5,10 +5,13 @@ import OfficerLanding from "./pages/OfficerLanding"
 import ManagerLanding from "./pages/ManagerLanding.jsx"
 
 
+
 // ── palette & fonts via inline style injection ──────────────────────────────
 const GlobalStyle = () => (
   <style>{`
+
      @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap');
+
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -196,10 +199,10 @@ const GlobalStyle = () => (
     @media(max-width:700px) {
       .hide-sm { display:none !important; }
       .col-2   { grid-template-columns:1fr !important; }
-    }
   `}
    </style>
 );
+
 
 const navItems = [
   {id:"landing", icon:"home", label:"Home"},  // ← ADD THIS
@@ -209,7 +212,6 @@ const navItems = [
   {id:"ussd",     icon:"phone",  label:"USSD Sim"},
   {id:"whatsapp", icon:"bell",   label:"WhatsApp Bot"},
 ];
-
 
 // ── seed data ────────────────────────────────────────────────────────────────
 const ORGS = [
@@ -582,7 +584,7 @@ export default function QueueEase() {
 
   return (
     <>
-      <GlobalStyle/>
+    <GlobalStyle/>
       <div style={{minHeight:"100vh", display:"flex", flexDirection:"column"}}>
 
         {/* TICKER TAPE */}
