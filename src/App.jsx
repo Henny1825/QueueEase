@@ -197,11 +197,13 @@ const GlobalStyle = () => (
     @media(max-width:700px) {
       .hide-sm { display:none !important; }
       .col-2   { grid-template-columns:1fr !important; }
-    }
-  `}  </style>
- );
+  `}
+   </style>
+);
+
 
 const navItems = [
+  {id:"landing", icon:"home", label:"Home"},  // ← ADD THIS
   {id:"customer", icon:"ticket", label:"Join Queue"},
   {id:"admin",    icon:"users",  label:"Staff Dashboard"},
   {id:"analytics",icon:"chart",  label:"Analytics"},
