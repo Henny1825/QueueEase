@@ -1,5 +1,5 @@
 import './App.css';
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect} from "react";
 import CitizenLanding from "./pages/UserLanding"
 import OfficerLanding from "./pages/OfficerLanding"
 import ManagerLanding from "./pages/ManagerLanding.jsx"
@@ -275,215 +275,9 @@ const Icon = ({name, size=16, color="currentColor"}) => {
   );
 };
 
-// ── USSD Simulator ───────────────────────────────────────────────────────────
-const USSDSim = ({ orgs, onJoin }) => {
-  const [screen, setScreen] = useState("home");
-  const [input, setInput] = useState("");
-  const [sel, setSel] = useState({});
-  const [result, setResult] = useState(null);
-  const ref = useRef();
-
-  // const MENU = {
-  //   home: { title:"CON Welcome to QueueEase\n\n1. Join a Queue\n2. Check My Position\n3. Cancel Ticket\n0. Exit", options:{"1":"join","2":"check","3":"cancel","0":"exit"} },
-  //   join: { title:"CON Select Organization:\n\n1. Ganah Health Service\n2. DVLA Licensing\n3. GRA Tax Office\n4. National ID Authority", options:{"1":0,"2":1,"3":2,"4":3} },
-  // };
-
-  const handleSend = () => {
-    const v = input.trim();
-    setInput("");
-    if (screen==="home") {
-      if(v==="1") { setScreen("join"); return; }
-      if(v==="0") { setScreen("home"); setSel({}); return; }
-    }
-    if (screen==="join" && ["1","2","3","4"].includes(v)) {
-      const org = orgs[parseInt(v)-1];
-      setSel({org});
-      setScreen("service");
-      return;
-    }
-    if (screen==="service" && sel.org) {
-      const svcIdx = parseInt(v)-1;
-      if (svcIdx>=0 && svcIdx<sel.org.services.length) {
-        const ticket = genToken(sel.org.id);
-        onJoin && onJoin({ orgId:sel.org.id, service:sel.org.services[svcIdx], phone:"+233055555555", channel:"ussd", token:ticket });
-        setResult({ token:ticket, org:sel.org.name, service:sel.org.services[svcIdx] });
-        setScreen("result");
-        return;
-      }
-    }
-    if(screen==="result") { setScreen("home"); setSel({}); setResult(null); }
-  };
-
-  const getDisplay = () => {
-    if(screen==="home") return "CON Welcome to QueueEase\n\n1. Join a Queue\n2. Check My Position\n3. Cancel Ticket\n0. Exit";
-    if(screen==="join") return `CON Select Organization:\n\n${orgs.map((o,i)=>`${i+1}. ${o.name.split("–")[0].trim()}`).join("\n")}\n\n0. Back`;
-    if(screen==="service" && sel.org) return `CON ${sel.org.name.split("–")[0].trim()}\nSelect Service:\n\n${sel.org.services.map((s,i)=>`${i+1}. ${s}`).join("\n")}\n\n0. Back`;
-    if(screen==="result" && result) return `END ✅ You're Queued!\n\nToken: ${result.token}\nOrg: ${result.org.split("–")[0].trim()}\nService: ${result.service}\n\nYou'll receive\nSMS updates on\nyour position.`;
-    return "";
-  };
-
-  return (
-    <div style={{display:"flex", flexDirection:"column", alignItems:"center"}}>
-      <div style={{
-        width:260, background:"#1a1a2e", borderRadius:28, padding:"24px 16px",
-        boxShadow:"0 20px 60px rgba(0,0,0,.4)", border:"4px solid #2d2d4e"
-      }}>
-        {/* phone top */}
-        <div style={{display:"flex",justifyContent:"center",marginBottom:12}}>
-          <div style={{width:60,height:6,borderRadius:3,background:"#2d2d4e"}}/>
-        </div>
-        {/* screen */}
-        <div style={{
-          background:"#e8f5e9", borderRadius:12, padding:14, minHeight:220,
-          fontFamily:"'DM Mono',monospace", fontSize:11, lineHeight:1.7,
-          color:"#1b5e20", whiteSpace:"pre-wrap", wordBreak:"break-word"
-        }}>
-          {getDisplay()}
-        </div>
-        {/* input row */}
-        <div style={{marginTop:12,display:"flex",gap:6}}>
-          <input
-            ref={ref}
-            value={input}
-            onChange={e=>setInput(e.target.value)}
-            onKeyDown={e=>e.key==="Enter"&&handleSend()}
-            placeholder="Enter option..."
-            style={{
-              flex:1, background:"#2d2d4e", border:"none", borderRadius:8,
-              padding:"8px 10px", color:"#fff", fontFamily:"'DM Mono',monospace",
-              fontSize:12, outline:"none"
-            }}
-          />
-          <button onClick={handleSend} style={{
-            background:"var(--teal)", border:"none", borderRadius:8,
-            padding:"8px 12px", cursor:"pointer", color:"#fff", fontWeight:700, fontSize:13
-          }}>OK</button>
-        </div>
-        {/* keypad hint */}
-        <p style={{textAlign:"center",color:"#555",fontSize:10,marginTop:8,fontFamily:"'DM Mono',monospace"}}>
-          USSD Simulator — type option & press OK
-        </p>
-      </div>
-    </div>
-  );
-};
-
-// ── WhatsApp Simulator ───────────────────────────────────────────────────────
-const WhatsAppSim = ({ orgs, onJoin }) => {
-  const [msgs, setMsgs] = useState([
-    { from:"bot", text:"👋 Hi! Welcome to *QueueEase*.\n\nI can help you join a virtual queue.\n\nReply with:\n• *JOIN [OrgCode]* to join a queue\n• *POS* to check your position\n• *CANCEL* to cancel your ticket\n\n_Example: JOIN GHS001_" }
-  ]);
-  const [input, setInput] = useState("");
-  const [myTicket, setMyTicket] = useState(null);
-  const scrollRef = useRef();
-
-  useEffect(()=>{ scrollRef.current?.scrollTo({top:9999,behavior:"smooth"}); },[msgs]);
-
-  const botReply = (text) => {
-    setTimeout(()=>{
-      setMsgs(m=>[...m,{from:"bot",text}]);
-    }, 700);
-  };
-
-  const send = () => {
-    const v = input.trim();
-    if(!v) return;
-    setMsgs(m=>[...m,{from:"user",text:v}]);
-    setInput("");
-
-    const up = v.toUpperCase();
-    if(up.startsWith("JOIN ")) {
-      const code = up.split(" ")[1];
-      const org = orgs.find(o=>o.id===code);
-      if(!org) { botReply(`❌ Org code *${code}* not found.\n\nValid codes:\n${orgs.map(o=>`• ${o.id} — ${o.name.split("–")[0].trim()}`).join("\n")}`); return; }
-      const svcList = org.services.map((s,i)=>`${i+1}. ${s}`).join("\n");
-      botReply(`✅ *${org.name}*\n\nPlease reply with the service number:\n${svcList}`);
-      // store pending join
-      setMyTicket({pendingOrg: org});
-      return;
-    }
-    if(myTicket?.pendingOrg && ["1","2","3","4"].includes(v)) {
-      const org = myTicket.pendingOrg;
-      const svc = org.services[parseInt(v)-1];
-      if(!svc) { botReply("❌ Invalid option. Please reply with a valid number."); return; }
-      const token = genToken(org.id);
-      onJoin&&onJoin({orgId:org.id, service:svc, phone:"+233024111222", channel:"whatsapp", token});
-      setMyTicket({token, org:org.name, service:svc});
-      botReply(`🎟️ *You're In!*\n\n*Token:* \`${token}\`\n*Org:* ${org.name.split("–")[0].trim()}\n*Service:* ${svc}\n*Position:* #${Math.floor(Math.random()*8)+3}\n*Est. Wait:* ~${Math.floor(Math.random()*20)+8} mins\n\nWe'll message you when you're next. 🙌`);
-      return;
-    }
-    if(up==="POS") {
-      if(!myTicket?.token) { botReply("⚠️ You don't have an active ticket. Reply *JOIN [OrgCode]* to get started."); return; }
-      botReply(`📍 *Position Update*\n\nToken: \`${myTicket.token}\`\nService: ${myTicket.service}\nYour position: *#4*\nEst. wait: *~16 mins*\n\nWe'll notify you when you're next! ⏳`);
-      return;
-    }
-    if(up==="CANCEL") {
-      setMyTicket(null);
-      botReply("🚫 Your ticket has been cancelled.\n\nReply *JOIN [OrgCode]* anytime to rejoin.");
-      return;
-    }
-    botReply("🤔 I didn't understand that.\n\nCommands:\n• *JOIN [OrgCode]* — join a queue\n• *POS* — check your position\n• *CANCEL* — cancel ticket");
-  };
-
-  return (
-    <div style={{
-      width:"100%", maxWidth:340, background:"#e5ddd5",
-      borderRadius:16, overflow:"hidden",
-      boxShadow:"0 8px 40px rgba(0,0,0,.15)"
-    }}>
-      {/* header */}
-      <div style={{background:"#075e54",padding:"12px 16px",display:"flex",alignItems:"center",gap:10}}>
-        <div style={{width:36,height:36,borderRadius:"50%",background:"#25d366",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18}}>🤖</div>
-        <div>
-          <div style={{color:"#fff",fontWeight:700,fontSize:14}}>QueueEase Bot</div>
-          <div style={{color:"#a8d5a2",fontSize:11,display:"flex",alignItems:"center",gap:4}}>
-            <div className="live-dot" style={{width:6,height:6}}/>
-            Online
-          </div>
-        </div>
-      </div>
-      {/* messages */}
-      <div ref={scrollRef} style={{height:300,overflowY:"auto",padding:12,display:"flex",flexDirection:"column",gap:8,
-        backgroundImage:"url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23a8c4b8' fill-opacity='0.15'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")"
-      }}>
-        {msgs.map((m,i)=>(
-          <div key={i} style={{display:"flex",justifyContent:m.from==="user"?"flex-end":"flex-start"}}>
-            <div style={{
-              maxWidth:"80%", padding:"8px 12px", borderRadius:m.from==="user"?"12px 2px 12px 12px":"2px 12px 12px 12px",
-              background:m.from==="user"?"#dcf8c6":"#fff",
-              fontSize:12, lineHeight:1.5, whiteSpace:"pre-wrap",
-              boxShadow:"0 1px 2px rgba(0,0,0,.1)",
-              fontFamily:"'DM Sans',sans-serif",
-            }} dangerouslySetInnerHTML={{__html:
-              m.text.replace(/\*([^*]+)\*/g,"<strong>$1</strong>")
-                    .replace(/`([^`]+)`/g,`<code style="background:#f0f0f0;padding:1px 5px;border-radius:4px;font-family:'DM Mono',monospace">${"$1"}</code>`)
-                    .replace(/_([^_]+)_/g,"<em>$1</em>")
-            }}/>
-          </div>
-        ))}
-      </div>
-      {/* input */}
-      <div style={{background:"#f0f0f0",padding:"8px 12px",display:"flex",gap:8,alignItems:"center"}}>
-        <input
-          value={input} onChange={e=>setInput(e.target.value)}
-          onKeyDown={e=>e.key==="Enter"&&send()}
-          placeholder="Type a message..."
-          style={{flex:1,border:"none",borderRadius:999,padding:"9px 14px",fontSize:13,outline:"none",background:"#fff"}}
-        />
-        <button onClick={send} style={{
-          width:36,height:36,borderRadius:"50%",background:"#075e54",
-          border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"
-        }}>
-          <Icon name="arrow" size={16} color="#fff"/>
-        </button>
-      </div>
-    </div>
-  );
-};
-
 // ── Main App ─────────────────────────────────────────────────────────────────
 export default function QueueEase() {
-  const [view, setView] = useState("customer"); // customer | admin | analytics | ussd | whatsapp
+  const [view, setView] = useState("landing"); // customer | admin | analytics | ussd | whatsapp
   const [queue, setQueue] = useState(initQueue);
   const [myTickets, setMyTickets] = useState([]);
   const [toast, setToast] = useState(null);
@@ -677,10 +471,10 @@ export default function QueueEase() {
 
         {/* MAIN */}
         <main style={{flex:1, padding:"28px 20px", maxWidth:1100, margin:"0 auto", width:"100%"}}>
-          {view === "landing" && <CitizenLanding onStartQueuing={() => setView("landing")} />}
+          {view === "landing" && <CitizenLanding onStartQueuing={() => setView("customer")} />}
           {view === "landing" && (
   <>
-    <CitizenLanding onStartQueuing={() => setView("customer")} />
+    
     <OfficerLanding onLoginAsOfficer={() => setView("admin")} />
     <ManagerLanding onViewAnalytics={() => setView("analytics")} />
   </>
