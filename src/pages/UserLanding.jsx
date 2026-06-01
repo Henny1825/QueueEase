@@ -25,7 +25,7 @@ export default function CitizenLanding({ onStartQueuing }) {
             <p style={{ fontSize: 18, color: "var(--muted)", lineHeight: 1.6, marginBottom: 28 }}>
               Join queues via WhatsApp, Web, or SMS. No waiting required. Get a token instantly and track your position in real-time.
             </p>
-            <button className="btn btn-primary" style={{ fontSize: 15, padding: "14px 32px", marginBottom: 40 }}
+            <button className="btn btn-primary" style={{ fontSize: 15, padding: "14px 32px", marginBottom: 40, marginRight: 15 }}
               onClick={onStartQueuing}>
               Join Queue Now
             </button>
