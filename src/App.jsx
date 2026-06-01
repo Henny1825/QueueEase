@@ -180,6 +180,8 @@ const GlobalStyle = () => (
       border: 1px solid var(--border);
     }
 
+    
+
     /* stat box */
     .stat-box {
       background: var(--card);
@@ -195,10 +197,28 @@ const GlobalStyle = () => (
     .ticker-inner { display:inline-flex; gap:60px; white-space:nowrap; animation: ticker 28s linear infinite; }
     .ticker-item  { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:.1em; opacity:.75; }
 
-    /* responsive */
-    @media(max-width:700px) {
-      .hide-sm { display:none !important; }
-      .col-2   { grid-template-columns:1fr !important; }
+    .hide-sm {
+  display: flex;
+}
+
+.show-sm {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .hide-sm {
+    display: none !important;
+  }
+  
+  .show-sm {
+    display: flex !important;
+  }
+  
+  .col-2 {
+    grid-template-columns: 1fr !important;
+  }
+}
+      
   `}
    </style>
 );
@@ -412,7 +432,7 @@ export default function QueueEase() {
           </div>
 
           {/* desktop nav */}
-          <nav style={{display:"flex",gap:2}} className="hide-sm">
+          <nav style={{gap:2}} className="hide-sm">
             {navItems.map(n=>(
               <button key={n.id} onClick={()=>setView(n.id)} style={{
                 border:"none", cursor:"pointer", borderRadius:8,
@@ -437,9 +457,9 @@ export default function QueueEase() {
 
         {/* mobile nav */}
         <div style={{
-          display:"flex", gap:0, overflowX:"auto", background:"var(--card)",
-          borderBottom:"1px solid var(--border)", padding:"0 8px"
-        }} className="show-sm">
+            gap:0, overflowX:"auto", background:"var(--card)",
+            borderBottom:"1px solid var(--border)", padding:"0 8px"
+          }} className="show-sm">
           {navItems.map(n=>(
             <button key={n.id} onClick={()=>setView(n.id)} style={{
               border:"none", cursor:"pointer", borderRadius:0,
