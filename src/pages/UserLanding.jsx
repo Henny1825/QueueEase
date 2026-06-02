@@ -29,9 +29,7 @@ export default function CitizenLanding({ onStartQueuing }) {
               onClick={onStartQueuing}>
               Join Queue Now
             </button>
-            <button className="btn btn-primary" style={{ fontSize: 15, padding: "14px 32px", marginBottom: 40 }}>
-              sign up
-            </button>
+            
             
             {/* Stats */}
             <div style={{ display: "flex", gap: 32 }}>

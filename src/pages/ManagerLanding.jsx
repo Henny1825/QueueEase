@@ -29,6 +29,9 @@ export default function ManagerLanding({ onViewAnalytics }) {
               onClick={onViewAnalytics}>
               View Full Analytics
             </button>
+            <button className="btn btn-primary" style={{ fontSize: 15, padding: "14px 32px", marginBottom: 40 }}>
+              sign up
+            </button>
             
             {/* Key metrics */}
             <div style={{ display: "flex", gap: 32 }}>
