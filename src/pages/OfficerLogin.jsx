@@ -1,10 +1,11 @@
 import { useState } from "react";
+import loginImage from "../assets/login.png"
 
 export default function OfficerLogin({ onLoginSuccess }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+   const [email, setEmail] = useState("");
+   const [password, setPassword] = useState("");
+   const [loading, setLoading] = useState(false);
+   const [error, setError] = useState("");
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -34,7 +35,26 @@ export default function OfficerLogin({ onLoginSuccess }) {
   };
 
   return (
-    <div className="fade-up" style={{ maxWidth: 400, margin: "60px auto" }}>
+  <div
+    style={{
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      gap: "50px",
+      marginTop: "60px",
+      flexWrap: "wrap",
+    }}
+  >
+    <img
+      src={loginImage}
+      alt="login"
+      style={{
+        width: "350px",
+        height: "auto",
+      }}
+    />
+
+    <div className="fade-up" style={{ maxWidth: 800 }}>
       <div style={{ marginBottom: 28 }}>
         <h1 className="syne" style={{ fontSize: 28, fontWeight: 800 }}>
           Staff Login
@@ -44,7 +64,7 @@ export default function OfficerLogin({ onLoginSuccess }) {
         </p>
       </div>
 
-      <form className="card" style={{ padding: 24, display: "flex", flexDirection: "column", gap: 18 }} onSubmit={handleLogin}>
+     <form className="card" style={{ padding: 24, display: "flex", flexDirection: "column", gap: 18 }} onSubmit={handleLogin}>
         <div className="field">
           <label>Email</label>
           <input
@@ -78,6 +98,8 @@ export default function OfficerLogin({ onLoginSuccess }) {
           {loading ? "Signing in..." : "Sign In"}
         </button>
       </form>
+        
     </div>
-  );
+  </div>
+);
 }
