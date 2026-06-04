@@ -1,6 +1,7 @@
 import { useState } from "react";
 
-export default function OfficerLanding({ onLoginAsOfficer }) {
+export default function OfficerLanding({ onLoginAsOfficer = () => {} }) {
+
   const [hoveredBenefit, setHoveredBenefit] = useState(null);
 
   return (

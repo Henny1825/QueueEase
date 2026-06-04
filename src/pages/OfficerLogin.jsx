@@ -54,7 +54,7 @@ export default function OfficerLogin({ onLoginSuccess }) {
       }}
     />
 
-    <div className="fade-up" style={{ maxWidth: 800 }}>
+    <div className="fade-up" style={{ maxWidth: 400 }}>
       <div style={{ marginBottom: 28 }}>
         <h1 className="syne" style={{ fontSize: 28, fontWeight: 800 }}>
           Staff Login

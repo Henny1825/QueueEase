@@ -433,6 +433,7 @@ export default function QueueEase() {
           </div>
 
           {/* desktop nav */}
+          {view !== "landing" && (
           <nav style={{gap:2}} className="hide-sm">
             {navItems.map(n=>(
               <button key={n.id} onClick={()=>setView(n.id)} style={{
@@ -449,6 +450,8 @@ export default function QueueEase() {
               </button>
             ))}
           </nav>
+          )}
+
 
           <div style={{display:"flex",alignItems:"center",gap:6}}>
             <div className="live-dot"/>
@@ -457,6 +460,7 @@ export default function QueueEase() {
         </header>
 
         {/* mobile nav */}
+        {view !== "landing" && (
         <div style={{
             gap:0, overflowX:"auto", background:"var(--card)",
             borderBottom:"1px solid var(--border)", padding:"0 8px"
@@ -474,6 +478,7 @@ export default function QueueEase() {
             </button>
           ))}
         </div>
+        )}
 
         {/* TOAST */}
         {toast && (
