@@ -22,7 +22,7 @@ document.getElementById("loginForm")
     try {
 
         const response = await fetch(
-            "https://queue-ease-apis.onrender.com/YOUR_LOGIN_ENDPOINT",
+            "https://queue-ease-apis.onrender.com/api/auth/login",
             {
                 method: "POST",
                 headers: {
