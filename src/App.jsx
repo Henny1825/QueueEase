@@ -3,6 +3,7 @@ import { useState, useEffect} from "react";
 import CitizenLanding from "./pages/UserLanding"
 import OfficerLanding from "./pages/OfficerLanding"
 import ManagerLanding from "./pages/ManagerLanding.jsx"
+import OfficerLogin from "./pages/OfficerLogin"
 
 
 
@@ -432,6 +433,7 @@ export default function QueueEase() {
           </div>
 
           {/* desktop nav */}
+          {view !== "landing" && (
           <nav style={{gap:2}} className="hide-sm">
             {navItems.map(n=>(
               <button key={n.id} onClick={()=>setView(n.id)} style={{
@@ -448,6 +450,8 @@ export default function QueueEase() {
               </button>
             ))}
           </nav>
+          )}
+
 
           <div style={{display:"flex",alignItems:"center",gap:6}}>
             <div className="live-dot"/>
@@ -456,6 +460,7 @@ export default function QueueEase() {
         </header>
 
         {/* mobile nav */}
+        {view !== "landing" && (
         <div style={{
             gap:0, overflowX:"auto", background:"var(--card)",
             borderBottom:"1px solid var(--border)", padding:"0 8px"
@@ -473,6 +478,7 @@ export default function QueueEase() {
             </button>
           ))}
         </div>
+        )}
 
         {/* TOAST */}
         {toast && (
@@ -493,12 +499,14 @@ export default function QueueEase() {
         <main style={{flex:1, padding:"28px 20px", maxWidth:1100, margin:"0 auto", width:"100%"}}>
           {view === "landing" && <CitizenLanding onStartQueuing={() => setView("customer")} />}
           {view === "landing" && (
-  <>
-    
-    <OfficerLanding onLoginAsOfficer={() => setView("admin")} />
-    <ManagerLanding onViewAnalytics={() => setView("analytics")} />
-  </>
+          <>
+            <OfficerLanding onLoginAsOfficer={() => setView("login")} />
+            <ManagerLanding onViewAnalytics={() => setView("analytics")} />
+          </>
 )}
+
+          {view === "login" && <OfficerLogin onLoginSuccess={() => setView("admin")} />}
+
           {/* ── CUSTOMER VIEW ─────────────────────────────────────── */}
           {view==="customer" && (
             <div className="fade-up">
@@ -823,7 +831,7 @@ export default function QueueEase() {
         {/* FOOTER */}
         <footer style={{borderTop:"1px solid var(--border)",padding:"16px 24px",display:"flex",justifyContent:"space-between",alignItems:"center",background:"var(--card)"}}>
           <span className="syne" style={{fontWeight:800,fontSize:13}}>QueueEase</span>
-          <span style={{fontSize:11,color:"var(--muted)"}}>Prototype · All channels · Real-time queue management</span>
+          <span style={{fontSize:11,color:"var(--muted)"}}>Real-time queue management</span>
         </footer>
       </div>
     </>
