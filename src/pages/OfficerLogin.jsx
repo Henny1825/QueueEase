@@ -61,14 +61,13 @@ export default function OfficerLoginForm({ onLoginSuccess, onSignupClick }) {
   };
 
   return (
-    <div style={styles.pageContainer}>
-      <div style={styles.container}>
+    <div className="login-container">
+      <div className="login-box">
         {/* LEFT SECTION - IMAGE */}
-        <div style={styles.leftSection}>
+        <div className="login-left">
           <img
             src={Queueease}
             alt="QueueEase"
-            style={styles.heroImage}
             onError={(e) => {
               e.target.style.display = "none";
             }}
@@ -76,7 +75,7 @@ export default function OfficerLoginForm({ onLoginSuccess, onSignupClick }) {
         </div>
 
         {/* RIGHT SECTION - FORM */}
-        <div style={styles.rightSection}>
+        <div className="login-right">
           <h1 style={styles.heading}>Welcome Back</h1>
           <p style={styles.subtitle}>Sign in to your admin account</p>
 
