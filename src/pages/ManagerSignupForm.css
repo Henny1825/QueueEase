@@ -1,0 +1,64 @@
+.signup-container {
+  background: #e7f3f3;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.signup-box {
+  background: #fff;
+  max-width: 1000px;
+  width: 100%;
+  display: flex;
+  gap: 50px;
+  padding: 50px;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+.signup-left {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.signup-left img {
+  width: 280px;
+  max-width: 100%;
+  height: auto;
+}
+
+.signup-right {
+  flex: 1;
+  min-width: 300px;
+}
+
+/* TABLET: 768px and below */
+@media (max-width: 768px) {
+  .signup-box {
+    flex-direction: column;
+    gap: 30px;
+    padding: 30px;
+  }
+  
+  .signup-left {
+    order: -1;
+  }
+  
+  .signup-left img {
+    width: 200px;
+  }
+}
+
+/* MOBILE: 480px and below */
+@media (max-width: 480px) {
+  .signup-left {
+    display: none;
+  }
+  
+  .signup-box {
+    padding: 20px;
+  }
+}
