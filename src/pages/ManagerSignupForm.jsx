@@ -1,8 +1,8 @@
 import { useState } from "react";
 import Queueease from "../assets/Queueease.png"
-import "../styles/OfficerSignupForm.css"
+import "../styles/ManagerSignupForm.css"
 
-export default function OfficerSignupForm({ onSignupSuccess, onLoginClick }) {
+export default function ManagerSignupForm({ onSignupSuccess, onLoginClick }) {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
