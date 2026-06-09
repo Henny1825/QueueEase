@@ -4,6 +4,7 @@ import CitizenLanding from "./pages/UserLanding"
 import OfficerLanding from "./pages/OfficerLanding"
 import ManagerLanding from "./pages/ManagerLanding.jsx"
 import OfficerLogin from "./pages/OfficerLogin"
+import Queueease from "./assets/Queueease.png"
 
 
 
@@ -274,7 +275,7 @@ const fmtTime = (d) => d.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit
 // ── Icon components ──────────────────────────────────────────────────────────
 const Icon = ({name, size=16, color="currentColor"}) => {
   const icons = {
-    queue: <><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></>,
+    //queue: <><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></>,
     ticket: <><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2M13 17v2M13 11v2"/></>,
     users: <><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></>,
     bell: <><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></>,
@@ -423,11 +424,15 @@ export default function QueueEase() {
         }}>
           <div style={{display:"flex",alignItems:"center",gap:10}}>
             <div style={{
-              width:34,height:34,borderRadius:8,
-              background:"linear-gradient(135deg,var(--teal),var(--teal2))",
+              width:50,height:50,borderRadius:8,
+              backgound:"linear-gradient(135deg,var(--teal),var(--teal2))",
               display:"flex",alignItems:"center",justifyContent:"center"
             }}>
-              <Icon name="queue" size={18} color="#fff"/>
+              <img 
+                src={Queueease} 
+                alt="QueueEase" 
+                style={{width: 50, height: "auto", borderRadius: 8}}
+              />
             </div>
             <span className="syne" style={{fontWeight:800,fontSize:18,letterSpacing:"-.02em"}}>QueueEase</span>
           </div>
@@ -505,7 +510,12 @@ export default function QueueEase() {
           </>
 )}
 
-          {view === "login" && <OfficerLogin onLoginSuccess={() => setView("admin")} />}
+          {view === "login" && (
+            <OfficerLogin
+              onLoginSuccess={() => setView("admin")} 
+              onSignupClick={() => setView("signup")}
+            />
+)}
 
           {/* ── CUSTOMER VIEW ─────────────────────────────────────── */}
           {view==="customer" && (

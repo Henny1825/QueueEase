@@ -1,0 +1,64 @@
+.login-container {
+  background: #e7f3f3;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.login-box {
+  background: #fff;
+  max-width: 1000px;
+  width: 100%;
+  display: flex;
+  gap: 50px;
+  padding: 50px;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+.login-left {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-left img {
+  width: 280px;
+  max-width: 100%;
+  height: auto;
+}
+
+.login-right {
+  flex: 1;
+  min-width: 300px;
+}
+
+/* TABLET: 768px and below */
+@media (max-width: 768px) {
+  .login-box {
+    flex-direction: column;
+    gap: 30px;
+    padding: 30px;
+  }
+  
+  .login-left {
+    order: -1; /* Logo on top */
+  }
+  
+  .login-left img {
+    width: 200px;
+  }
+}
+
+/* MOBILE: 480px and below */
+@media (max-width: 480px) {
+  .login-left {
+    display: none; /* Hide logo */
+  }
+  
+  .login-box {
+    padding: 20px;
+  }
+}
