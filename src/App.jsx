@@ -5,7 +5,7 @@ import OfficerLanding from "./pages/OfficerLanding"
 import ManagerLanding from "./pages/ManagerLanding.jsx"
 import OfficerLogin from "./pages/OfficerLogin"
 import Queueease from "./assets/Queueease.png"
-
+import ManagerSignupForm from "./pages/OfficerSignupForm"
 
 
 // ── palette & fonts via inline style injection ──────────────────────────────
@@ -516,6 +516,13 @@ export default function QueueEase() {
               onSignupClick={() => setView("signup")}
             />
 )}
+
+          {view === "signup" && (
+            <ManagerSignupForm
+              onSignupSuccess={() => setView("login")} 
+              onLoginClick={() => setView("login")}
+            />
+          )}
 
           {/* ── CUSTOMER VIEW ─────────────────────────────────────── */}
           {view==="customer" && (
