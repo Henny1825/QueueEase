@@ -137,6 +137,7 @@ export default function OfficerLoginForm({ onLoginSuccess, onSignupClick }) {
 
             {/* Login Button */}
             <button
+              onClick={onSignupClick}
               type="submit"
               disabled={loading}
               style={{

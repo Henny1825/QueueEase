@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function ManagerLanding() {
+export default function ManagerLanding({ onSignupClick }) {
   const [hoveredInsight, setHoveredInsight] = useState(null);
 
   return (
@@ -26,7 +26,7 @@ export default function ManagerLanding() {
               Monitor queue performance across all organizations. Data-driven decisions made simple. Optimize staffing and improve citizen satisfaction.
             </p>
             <button className="btn btn-primary" style={{ fontSize: 15, padding: "14px 32px", marginBottom: 40 }}
-              onClick={() => alert("Analytics coming soon!")}>
+              onClick={onSignupClick}>
               sign up
             </button>
             
@@ -181,7 +181,7 @@ export default function ManagerLanding() {
         <div style={{ maxWidth: 1100, margin: "0 auto", textAlign: "center" }}>
           <h2 className="syne" style={{ fontSize: 36, fontWeight: 800, marginBottom: 14 }}>Take Control of Your Queues</h2>
           <p style={{ fontSize: 16, color: "var(--muted)", marginBottom: 32 }}>Real-time analytics. Actionable insights. Better service.</p>
-          <button className="btn btn-primary" style={{ fontSize: 16, padding: "16px 40px" }}>
+          <button className="btn btn-primary" style={{ fontSize: 16, padding: "16px 40px" }} onClick={onSignupClick}>
             sign up
           </button>
         </div>

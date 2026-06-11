@@ -506,7 +506,10 @@ export default function QueueEase() {
           {view === "landing" && (
           <>
             <OfficerLanding onLoginAsOfficer={() => setView("login")} />
-            <ManagerLanding onViewAnalytics={() => setView("analytics")} />
+            <ManagerLanding 
+              onSignupClick={() => setView("signup")}
+              onViewAnalytics={() => setView("analytics")} 
+            />
           </>
 )}
 
