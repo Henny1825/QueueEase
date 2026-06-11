@@ -31,25 +31,31 @@ export default function OfficerLoginForm({ onLoginSuccess, onSignupClick }) {
             email,
             password,
           }),
+          
         }
       );
 
       const data = await response.json();
 
       if (response.ok) {
-        // Save token
-        if (data.token) {
-          localStorage.setItem("token", data.token);
-        }
+  // Save token
+  if (data.token) {
+    localStorage.setItem("token", data.token);
+  }
 
-        // Save remember me preference
-        if (rememberMe) {
-          localStorage.setItem("rememberEmail", email);
-        }
+  // Save role
+  if (data.role) {
+    localStorage.setItem("userRole", data.role);
+  }
 
-        // Redirect to dashboard via callback
-        onLoginSuccess();
-      } else {
+  // Save remember me preference
+  if (rememberMe) {
+    localStorage.setItem("rememberEmail", email);
+  }
+
+  // Redirect to dashboard via callback
+  onLoginSuccess();
+} else {
         setError(data.message || "Invalid credentials");
       }
     } catch (err) {

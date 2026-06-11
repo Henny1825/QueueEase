@@ -225,14 +225,11 @@ const GlobalStyle = () => (
    </style>
 );
 
-
-const navItems = [
-  {id:"landing", icon:"home", label:"Home"},  // ← ADD THIS
+const allNavItems = [
+  {id:"landing", icon:"home", label:"Home"},
   {id:"customer", icon:"ticket", label:"Join Queue"},
   {id:"admin",    icon:"users",  label:"Staff Dashboard"},
   {id:"analytics",icon:"chart",  label:"Analytics"},
-  // {id:"ussd",     icon:"phone",  label:"USSD Sim"},
-  // {id:"whatsapp", icon:"bell",   label:"WhatsApp Bot"},
 ];
 
 // ── seed data ────────────────────────────────────────────────────────────────
@@ -314,6 +311,23 @@ export default function QueueEase() {
   // admin state
   const [aOrg, setAOrg] = useState(ORGS[0].id);
   const [aSvc, setASvc] = useState(0);
+
+  const userRole = typeof window !== "undefined" ? localStorage.getItem("userRole") : null;
+  const navItems = allNavItems.filter(n => {
+    if (n.id === "admin") return userRole === "officer";
+    if (n.id === "analytics") return userRole === "manager";
+    if (n.id === "customer") return userRole === "citizen";
+    return n.id === "landing";
+  });
+
+  const currentView =
+    userRole === "officer" && view === "login"
+      ? "admin"
+      : userRole === "manager" && view === "login"
+        ? "analytics"
+        : userRole === "citizen" && view === "login"
+          ? "customer"
+          : view;
 
   useEffect(()=>{ const t=setInterval(()=>setTick(x=>x+1),5000); return()=>clearInterval(t); },[]);
 
@@ -438,14 +452,14 @@ export default function QueueEase() {
           </div>
 
           {/* desktop nav */}
-          {view !== "landing" && (
+          {currentView !== "landing" && (
           <nav style={{gap:2}} className="hide-sm">
             {navItems.map(n=>(
               <button key={n.id} onClick={()=>setView(n.id)} style={{
                 border:"none", cursor:"pointer", borderRadius:8,
                 padding:"7px 14px", fontSize:13, fontWeight:500,
-                background: view===n.id ? "var(--teal)" : "transparent",
-                color: view===n.id ? "#fff" : "var(--muted)",
+                background: currentView===n.id ? "var(--teal)" : "transparent",
+                color: currentView===n.id ? "#fff" : "var(--muted)",
                 display:"flex", alignItems:"center", gap:6,
                 fontFamily:"'DM Sans',sans-serif",
                 transition:"all .18s"
@@ -465,7 +479,7 @@ export default function QueueEase() {
         </header>
 
         {/* mobile nav */}
-        {view !== "landing" && (
+        {currentView !== "landing" && (
         <div style={{
             gap:0, overflowX:"auto", background:"var(--card)",
             borderBottom:"1px solid var(--border)", padding:"0 8px"
@@ -475,8 +489,8 @@ export default function QueueEase() {
               border:"none", cursor:"pointer", borderRadius:0,
               padding:"10px 14px", fontSize:12, fontWeight:500,
               background:"transparent", whiteSpace:"nowrap",
-              color: view===n.id ? "var(--teal)" : "var(--muted)",
-              borderBottom: view===n.id ? "2px solid var(--teal)" : "2px solid transparent",
+              color: currentView===n.id ? "var(--teal)" : "var(--muted)",
+              borderBottom: currentView===n.id ? "2px solid var(--teal)" : "2px solid transparent",
               fontFamily:"'DM Sans',sans-serif",
             }}>
               {n.label}
@@ -502,8 +516,8 @@ export default function QueueEase() {
 
         {/* MAIN */}
         <main style={{flex:1, padding:"28px 20px", maxWidth:1100, margin:"0 auto", width:"100%"}}>
-          {view === "landing" && <CitizenLanding onStartQueuing={() => setView("customer")} />}
-          {view === "landing" && (
+          {currentView === "landing" && <CitizenLanding onStartQueuing={() => setView("customer")} />}
+          {currentView === "landing" && (
           <>
             <OfficerLanding onLoginAsOfficer={() => setView("login")} />
             <ManagerLanding 
@@ -513,14 +527,14 @@ export default function QueueEase() {
           </>
 )}
 
-          {view === "login" && (
+          {currentView === "login" && (
             <OfficerLogin
-              onLoginSuccess={() => setView("admin")} 
+              onLoginSuccess={() => setView("login")} 
               onSignupClick={() => setView("signup")}
             />
 )}
 
-          {view === "signup" && (
+          {currentView === "signup" && (
             <ManagerSignupForm
               onSignupSuccess={() => setView("login")} 
               onLoginClick={() => setView("login")}
@@ -528,7 +542,7 @@ export default function QueueEase() {
           )}
 
           {/* ── CUSTOMER VIEW ─────────────────────────────────────── */}
-          {view==="customer" && (
+          {currentView==="customer" && (
             <div className="fade-up">
               <div style={{marginBottom:28}}>
                 <h1 className="syne" style={{fontSize:28,fontWeight:800,letterSpacing:"-.02em"}}>Join a Queue</h1>
@@ -668,7 +682,7 @@ export default function QueueEase() {
           )}
 
           {/* ── ADMIN / STAFF VIEW ────────────────────────────────── */}
-          {view==="admin" && (
+          {currentView==="admin" && (
             <div className="fade-up">
               <div style={{marginBottom:28}}>
                 <h1 className="syne" style={{fontSize:28,fontWeight:800}}>Staff Dashboard</h1>
@@ -763,7 +777,7 @@ export default function QueueEase() {
           )}
 
           {/* ── ANALYTICS VIEW ───────────────────────────────────── */}
-          {view==="analytics" && (
+          {currentView==="analytics" && (
             <div className="fade-up">
               <div style={{marginBottom:28}}>
                 <h1 className="syne" style={{fontSize:28,fontWeight:800}}>Analytics</h1>
