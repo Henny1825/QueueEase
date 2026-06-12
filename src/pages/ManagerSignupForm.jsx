@@ -310,13 +310,16 @@ export default function ManagerSignupForm({ onSignupSuccess, onLoginClick }) {
             {/* Availability Input */}
             <div style={styles.fieldGroup}>
               <label style={styles.label}>Availability</label>
-              <input
-                type="text"
-                placeholder="24/7, Monday-Friday, etc."
+              <select
                 value={availability}
                 onChange={(e) => setAvailability(e.target.value)}
+                required
                 style={styles.input}
-              />
+              >
+                <option value="">Select availability</option>
+                <option value="weekdays">Weekdays Only</option>
+                <option value="always_open">24/7 / Always Open</option>
+              </select>
             </div>
 
             {/* Opening Time Input */}
