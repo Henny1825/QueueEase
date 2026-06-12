@@ -3,10 +3,22 @@ import Queueease from "../assets/Queueease.png"
 import "../styles/ManagerSignupForm.css"
 
 export default function ManagerSignupForm({ onSignupSuccess, onLoginClick }) {
+  // User fields
+  const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  
+  // Organization fields
+  const [orgName, setOrgName] = useState("");
+  const [orgEmail, setOrgEmail] = useState("");
+  const [orgPhone, setOrgPhone] = useState("");
+  const [location, setLocation] = useState("");
+  const [availability, setAvailability] = useState("");
+  const [openingTime, setOpeningTime] = useState("09:00");
+  const [closingTime, setClosingTime] = useState("17:00");
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -22,8 +34,12 @@ export default function ManagerSignupForm({ onSignupSuccess, onLoginClick }) {
   };
 
   const validateForm = () => {
+    if (!userName.trim()) {
+      setError("Your name is required");
+      return false;
+    }
     if (!email.trim()) {
-      setError("Email or phone number is required");
+      setError("Email is required");
       return false;
     }
     if (!phone.trim()) {
@@ -42,6 +58,22 @@ export default function ManagerSignupForm({ onSignupSuccess, onLoginClick }) {
       setError("Passwords do not match");
       return false;
     }
+    if (!orgName.trim()) {
+      setError("Organization name is required");
+      return false;
+    }
+    if (!orgEmail.trim()) {
+      setError("Organization email is required");
+      return false;
+    }
+    if (!orgPhone.trim()) {
+      setError("Organization phone is required");
+      return false;
+    }
+    if (!location.trim()) {
+      setError("Organization location is required");
+      return false;
+    }
     return true;
   };
 
@@ -57,6 +89,24 @@ export default function ManagerSignupForm({ onSignupSuccess, onLoginClick }) {
     setLoading(true);
 
     try {
+      const payload = {
+        user: {
+          name: userName,
+          email,
+          phone,
+          password,
+        },
+        organization: {
+          name: orgName,
+          email: orgEmail,
+          phone: orgPhone,
+          location,
+          availability: availability || "24/7",
+          openingTime,
+          closingTime,
+        },
+      };
+
       const response = await fetch(
         "https://queue-ease-apis.onrender.com/api/auth/signup",
         {
@@ -64,11 +114,7 @@ export default function ManagerSignupForm({ onSignupSuccess, onLoginClick }) {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            email,
-            phone,
-            password,
-          }),
+          body: JSON.stringify(payload),
         }
       );
 
@@ -76,12 +122,20 @@ export default function ManagerSignupForm({ onSignupSuccess, onLoginClick }) {
 
       if (response.ok) {
         setSuccess("Account created successfully. Redirecting to login...");
-        
+
         // Clear form
+        setUserName("");
         setEmail("");
         setPhone("");
         setPassword("");
         setConfirmPassword("");
+        setOrgName("");
+        setOrgEmail("");
+        setOrgPhone("");
+        setLocation("");
+        setAvailability("");
+        setOpeningTime("09:00");
+        setClosingTime("17:00");
 
         // Redirect after 2 seconds
         setTimeout(() => {
@@ -109,15 +163,31 @@ export default function ManagerSignupForm({ onSignupSuccess, onLoginClick }) {
         {/* RIGHT SECTION - FORM */}
         <div className="signup-right">
           <h1 style={styles.heading}>Create an Account</h1>
-          <p style={styles.subtitle}>Sign up to join your organization</p>
+          <p style={styles.subtitle}>Set up your organization and manager account</p>
 
           <form onSubmit={handleSubmit} style={styles.form}>
-            {/* Email Input */}
+            {/* USER SECTION */}
+            <div style={styles.sectionHeading}>Your Details</div>
+
+            {/* Name Input */}
             <div style={styles.fieldGroup}>
-              <label style={styles.label}>Email Address or Phone Number</label>
+              <label style={styles.label}>Full Name</label>
               <input
                 type="text"
-                placeholder="admin@queueease.com"
+                placeholder="John Doe"
+                value={userName}
+                onChange={(e) => setUserName(e.target.value)}
+                required
+                style={styles.input}
+              />
+            </div>
+
+            {/* Email Input */}
+            <div style={styles.fieldGroup}>
+              <label style={styles.label}>Email Address</label>
+              <input
+                type="email"
+                placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -182,6 +252,95 @@ export default function ManagerSignupForm({ onSignupSuccess, onLoginClick }) {
               </div>
             </div>
 
+            {/* ORGANIZATION SECTION */}
+            <div style={styles.sectionHeading}>Organization Details</div>
+
+            {/* Org Name Input */}
+            <div style={styles.fieldGroup}>
+              <label style={styles.label}>Organization Name</label>
+              <input
+                type="text"
+                placeholder="Ghana Health Service"
+                value={orgName}
+                onChange={(e) => setOrgName(e.target.value)}
+                required
+                style={styles.input}
+              />
+            </div>
+
+            {/* Org Email Input */}
+            <div style={styles.fieldGroup}>
+              <label style={styles.label}>Organization Email</label>
+              <input
+                type="email"
+                placeholder="info@organization.com"
+                value={orgEmail}
+                onChange={(e) => setOrgEmail(e.target.value)}
+                required
+                style={styles.input}
+              />
+            </div>
+
+            {/* Org Phone Input */}
+            <div style={styles.fieldGroup}>
+              <label style={styles.label}>Organization Phone</label>
+              <input
+                type="tel"
+                placeholder="+233 XX XXX XXXX"
+                value={orgPhone}
+                onChange={(e) => setOrgPhone(e.target.value)}
+                required
+                style={styles.input}
+              />
+            </div>
+
+            {/* Location Input */}
+            <div style={styles.fieldGroup}>
+              <label style={styles.label}>Location</label>
+              <input
+                type="text"
+                placeholder="Accra, Ghana"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                required
+                style={styles.input}
+              />
+            </div>
+
+            {/* Availability Input */}
+            <div style={styles.fieldGroup}>
+              <label style={styles.label}>Availability</label>
+              <input
+                type="text"
+                placeholder="24/7, Monday-Friday, etc."
+                value={availability}
+                onChange={(e) => setAvailability(e.target.value)}
+                style={styles.input}
+              />
+            </div>
+
+            {/* Opening Time Input */}
+            <div style={styles.fieldGroup}>
+              <label style={styles.label}>Opening Time</label>
+              <input
+                type="time"
+                value={openingTime}
+                onChange={(e) => setOpeningTime(e.target.value)}
+                style={styles.input}
+              />
+            </div>
+
+            {/* Closing Time Input */}
+            <div style={styles.fieldGroup}>
+              <label style={styles.label}>Closing Time</label>
+              <input
+                type="time"
+                value={closingTime}
+                onChange={(e) => setClosingTime(e.target.value)}
+                style={styles.input}
+              />
+            </div>
+
             {/* Error Message */}
             {error && <div style={styles.errorMessage}>{error}</div>}
 
@@ -234,6 +393,16 @@ const styles = {
     color: "#666",
     fontSize: "14px",
     marginBottom: "25px",
+  },
+
+  sectionHeading: {
+    color: "#1d2433",
+    fontSize: "16px",
+    fontWeight: "700",
+    marginTop: "20px",
+    marginBottom: "12px",
+    paddingBottom: "8px",
+    borderBottom: "1px solid #ddd",
   },
 
   form: {
@@ -331,6 +500,7 @@ const styles = {
     fontSize: "16px",
     fontWeight: "600",
     transition: "background-color 0.2s",
+    marginTop: "10px",
   },
 
   loginLink: {
