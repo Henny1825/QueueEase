@@ -10,6 +10,7 @@ export default function ManagerSignupForm({ onSignupSuccess, onLoginClick }) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   
+  
   // Organization fields
   const [orgName, setOrgName] = useState("");
   const [orgEmail, setOrgEmail] = useState("");
