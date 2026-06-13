@@ -143,7 +143,7 @@ export default function OfficerLoginForm({ onLoginSuccess, onSignupClick }) {
 
             {/* Login Button */}
             <button
-              onClick={onSignupClick}
+              onClick={handleSubmit}
               type="submit"
               disabled={loading}
               style={{

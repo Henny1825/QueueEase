@@ -6,6 +6,7 @@ import ManagerLanding from "./pages/ManagerLanding.jsx"
 import OfficerLogin from "./pages/OfficerLogin"
 import Queueease from "./assets/Queueease.png"
 import ManagerSignupForm from "./pages/ManagerSignupForm"
+import DigitalTicket from "./pages/DigitalTicket"
 
 
 // ── palette & fonts via inline style injection ──────────────────────────────
@@ -182,8 +183,6 @@ const GlobalStyle = () => (
       border: 1px solid var(--border);
     }
 
-    
-
     /* stat box */
     .stat-box {
       background: var(--card);
@@ -200,26 +199,26 @@ const GlobalStyle = () => (
     .ticker-item  { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:.1em; opacity:.75; }
 
     .hide-sm {
-  display: flex;
-}
+      display: flex;
+    }
 
-.show-sm {
-  display: none;
-}
+    .show-sm {
+      display: none;
+    }
 
-@media (max-width: 768px) {
-  .hide-sm {
-    display: none !important;
-  }
-  
-  .show-sm {
-    display: flex !important;
-  }
-  
-  .col-2 {
-    grid-template-columns: 1fr !important;
-  }
-}
+    @media (max-width: 768px) {
+      .hide-sm {
+        display: none !important;
+      }
+      
+      .show-sm {
+        display: flex !important;
+      }
+      
+      .col-2 {
+        grid-template-columns: 1fr !important;
+      }
+    }
       
   `}
    </style>
@@ -264,15 +263,10 @@ const initQueue = () => {
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 const fmtTime = (d) => d.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
-// const waitMins = (ticket, tickets, avgMins) => {
-//   const pos = tickets.filter(t=>t.status==="waiting").findIndex(t=>t.id===ticket.id);
-//   return pos < 0 ? 0 : (pos+1)*avgMins;
-// };
 
 // ── Icon components ──────────────────────────────────────────────────────────
 const Icon = ({name, size=16, color="currentColor"}) => {
   const icons = {
-    //queue: <><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></>,
     ticket: <><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2M13 17v2M13 11v2"/></>,
     users: <><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></>,
     bell: <><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></>,
@@ -296,12 +290,13 @@ const Icon = ({name, size=16, color="currentColor"}) => {
 
 // ── Main App ─────────────────────────────────────────────────────────────────
 export default function QueueEase() {
-  const [view, setView] = useState("landing"); // customer | admin | analytics | ussd | whatsapp
+  const [view, setView] = useState("landing");
   const [queue, setQueue] = useState(initQueue);
   const [myTickets, setMyTickets] = useState([]);
   const [toast, setToast] = useState(null);
-  const [, setTick] = useState(0); //tick was removed from the first item in the array
-   
+  const [, setTick] = useState(0);
+  const [currentTicket, setCurrentTicket] = useState(null);
+
   // join form state
   const [jOrgId, setJOrgId] = useState(ORGS[0].id);
   const [jSvc, setJSvc] = useState(ORGS[0].services[0]);
@@ -346,6 +341,8 @@ export default function QueueEase() {
       joinedAt: new Date(),
       orgId, service, orgName: org.name
     };
+    setCurrentTicket(t);
+    setView("ticket");
     setQueue(q=>{
       const nq = {...q};
       const svcArr = nq[orgId];
@@ -404,20 +401,12 @@ export default function QueueEase() {
   const totalServed  = Object.values(queue).flat().reduce((a,s)=>a+s.tickets.filter(t=>t.status==="done").length,0);
   const totalOrgs    = ORGS.length;
 
-  // const navItems = [
-  //   {id:"customer", icon:"ticket", label:"Join Queue"},
-  //   {id:"admin",    icon:"users",  label:"Staff Dashboard"},
-  //   {id:"analytics",icon:"chart",  label:"Analytics"},
-  //   {id:"ussd",     icon:"phone",  label:"USSD Sim"},
-  //   {id:"whatsapp", icon:"bell",   label:"WhatsApp Bot"},
-  // ];
-
   return (
     <>
     <GlobalStyle/>
       <div style={{minHeight:"100vh", display:"flex", flexDirection:"column"}}>
 
-        {/* TICKER TAPE */}
+        {/* TICKER TAPE
         <div className="ticker-wrap">
           <div className="ticker-inner">
             {[...Array(2)].map((_,rep)=>
@@ -428,7 +417,7 @@ export default function QueueEase() {
               ))
             )}
           </div>
-        </div>
+        </div> */}
 
         {/* HEADER */}
         <header style={{
@@ -452,7 +441,7 @@ export default function QueueEase() {
           </div>
 
           {/* desktop nav */}
-          {currentView !== "landing" && (
+          {currentView !== "landing" && currentView !== "ticket" && (
           <nav style={{gap:2}} className="hide-sm">
             {navItems.map(n=>(
               <button key={n.id} onClick={()=>setView(n.id)} style={{
@@ -471,7 +460,6 @@ export default function QueueEase() {
           </nav>
           )}
 
-
           <div style={{display:"flex",alignItems:"center",gap:6}}>
             <div className="live-dot"/>
             <span style={{fontSize:12,color:"var(--muted)"}} className="mono hide-sm">{totalWaiting} active</span>
@@ -479,7 +467,7 @@ export default function QueueEase() {
         </header>
 
         {/* mobile nav */}
-        {currentView !== "landing" && (
+        {currentView !== "landing" && currentView !== "ticket" && (
         <div style={{
             gap:0, overflowX:"auto", background:"var(--card)",
             borderBottom:"1px solid var(--border)", padding:"0 8px"
@@ -525,19 +513,34 @@ export default function QueueEase() {
               onViewAnalytics={() => setView("analytics")} 
             />
           </>
-)}
+          )}
 
           {currentView === "login" && (
             <OfficerLogin
-              onLoginSuccess={() => setView("login")} 
+              onLoginSuccess={() => {}}  
               onSignupClick={() => setView("signup")}
             />
-)}
+          )}
 
           {currentView === "signup" && (
             <ManagerSignupForm
               onSignupSuccess={() => setView("login")} 
               onLoginClick={() => setView("login")}
+            />
+          )}
+
+          {/* ── DIGITAL TICKET VIEW (FULL SCREEN) ─────────────────── */}
+          {currentView === "ticket" && (
+            <DigitalTicket 
+              ticket={currentTicket}
+              position={currentTicket ? myTickets.findIndex(t => t.id === currentTicket.id) : -1}
+              orgName={currentTicket?.orgName}
+              service={currentTicket?.service}
+              onBackToQueue={() => setView("customer")}
+              onLeaveQueue={() => { 
+                if(currentTicket) cancelTicket(currentTicket.id, currentTicket.orgId, currentTicket.service);
+                setView("customer"); 
+              }}
             />
           )}
 
@@ -599,7 +602,6 @@ export default function QueueEase() {
 
                 {/* QUEUE STATUS */}
                 <div style={{display:"flex",flexDirection:"column",gap:16}}>
-                  {/* org status card */}
                   {org && (() => {
                     const svcEntry = queue[jOrgId]?.find(s=>s.service===jSvc);
                     const waiting = svcEntry?.tickets.filter(t=>t.status==="waiting").length || 0;
@@ -642,40 +644,6 @@ export default function QueueEase() {
                       </div>
                     );
                   })()}
-
-                  {/* My tickets */}
-                  {myTickets.length>0 && (
-                    <div className="card" style={{padding:20}}>
-                      <div style={{fontWeight:700,fontSize:14,marginBottom:14,display:"flex",alignItems:"center",gap:6}}>
-                        <Icon name="ticket" size={15} color="var(--teal)"/>
-                        My Active Tickets
-                      </div>
-                      <div style={{display:"flex",flexDirection:"column",gap:10}}>
-                        {myTickets.map(t=>{
-                          const svcEntry = queue[t.orgId]?.find(s=>s.service===t.service);
-                          const pos = svcEntry?.tickets.filter(x=>x.status==="waiting").findIndex(x=>x.id===t.id) ?? -1;
-                          return (
-                            <div key={t.id} className="ticket-card" style={{padding:16}}>
-                              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
-                                <span className="mono" style={{fontWeight:700,fontSize:16,color:"var(--teal)"}}>{t.id}</span>
-                                <span className="ch-badge">{CHANNELS[t.channel]}</span>
-                              </div>
-                              <div style={{fontSize:12,color:"var(--muted)",marginBottom:10}}>{t.orgName.split("–")[0].trim()} · {t.service}</div>
-                              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                                <div style={{fontSize:13}}>
-                                  {pos>=0 ? <><strong>#{pos+1}</strong> in line · ~{(pos+1)*(ORGS.find(o=>o.id===t.orgId)?.avgMins||8)} mins</> : <span style={{color:"var(--teal)"}}>✅ Being served</span>}
-                                </div>
-                                <button className="btn btn-danger" style={{fontSize:11,padding:"5px 10px"}}
-                                  onClick={()=>cancelTicket(t.id, t.orgId, t.service)}>
-                                  Cancel
-                                </button>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
@@ -689,7 +657,6 @@ export default function QueueEase() {
                 <p style={{color:"var(--muted)",fontSize:14,marginTop:4}}>Manage queues, call customers, mark served.</p>
               </div>
 
-              {/* org + service picker */}
               <div style={{display:"flex",gap:12,flexWrap:"wrap",marginBottom:24}}>
                 <div className="field" style={{flex:1,minWidth:200}}>
                   <label>Organization</label>
@@ -705,7 +672,6 @@ export default function QueueEase() {
                 </div>
               </div>
 
-              {/* action bar */}
               <div style={{display:"flex",gap:10,marginBottom:20,flexWrap:"wrap"}}>
                 <button className="btn btn-primary" onClick={()=>callNext(aOrg,aSvc)}>
                   <Icon name="bell" size={15}/>
@@ -721,7 +687,6 @@ export default function QueueEase() {
                 </button>
               </div>
 
-              {/* queue table */}
               <div className="card" style={{overflow:"hidden"}}>
                 <div style={{padding:"16px 20px",borderBottom:"1px solid var(--border)",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                   <span style={{fontWeight:700,fontSize:14}}>
@@ -752,7 +717,7 @@ export default function QueueEase() {
                             <td style={{color:"var(--muted)",fontFamily:"'DM Mono',monospace",fontSize:12}}>{i+1}</td>
                             <td><span className="mono" style={{fontWeight:600}}>{t.id}</span></td>
                             <td style={{color:"var(--muted)",fontSize:12}}>{t.phone}</td>
-                            <td><span className="ch-badge">{CHANNELS[t.channel]}</span></td>
+                            <td><span className="ch-badge">📱</span></td>
                             <td style={{color:"var(--muted)",fontSize:12}}>{fmtTime(t.joinedAt)}</td>
                             <td style={{fontSize:12}}>
                               {t.status==="waiting" ? `~${(waitPos+1)*adminOrg.avgMins} min` : "—"}
@@ -784,7 +749,6 @@ export default function QueueEase() {
                 <p style={{color:"var(--muted)",fontSize:14,marginTop:4}}>Live platform metrics across all organizations.</p>
               </div>
 
-              {/* stat row */}
               <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:16,marginBottom:24}} className="col-2">
                 {[
                   {label:"Total Waiting", val:totalWaiting, color:"var(--teal)"},
@@ -799,7 +763,6 @@ export default function QueueEase() {
                 ))}
               </div>
 
-              {/* per-org breakdown */}
               <div className="card" style={{padding:24,marginBottom:20}}>
                 <h3 className="syne" style={{fontWeight:700,marginBottom:18,fontSize:16}}>Queue Load by Organization</h3>
                 <div style={{display:"flex",flexDirection:"column",gap:18}}>
@@ -838,7 +801,6 @@ export default function QueueEase() {
                 </div>
               </div>
 
-              {/* channel distribution */}
               <div className="card" style={{padding:24}}>
                 <h3 className="syne" style={{fontWeight:700,marginBottom:18,fontSize:16}}>Channel Distribution</h3>
                 <div style={{display:"flex",gap:16,flexWrap:"wrap"}}>
