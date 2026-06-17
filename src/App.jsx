@@ -7,7 +7,7 @@ import OfficerLogin from "./pages/OfficerLogin"
 import Queueease from "./assets/Queueease.png"
 import ManagerSignupForm from "./pages/ManagerSignupForm"
 import DigitalTicket from "./pages/DigitalTicket"
-
+import QueueConfirmation from "./pages/ConfirmQueue"
 
 // ── palette & fonts via inline style injection ──────────────────────────────
 const GlobalStyle = () => (
@@ -221,7 +221,7 @@ const GlobalStyle = () => (
     }
       
   `}
-   </style>
+  </style>
 );
 
 const allNavItems = [
@@ -264,6 +264,24 @@ const initQueue = () => {
 // ── helpers ──────────────────────────────────────────────────────────────────
 const fmtTime = (d) => d.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
 
+// ── API helper (ready for Manager Dashboard wiring) ─────────────────────────
+const API_BASE = "https://queue-ease-apis.onrender.com";
+// eslint-disable-next-line no-unused-vars
+const apiFetch = async (path, options = {}) => {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${API_BASE}${path}`, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(options.headers || {}),
+    },
+  });
+  const data = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(data?.message || `Request failed (${res.status})`);
+  return data;
+};
+
 // ── Icon components ──────────────────────────────────────────────────────────
 const Icon = ({name, size=16, color="currentColor"}) => {
   const icons = {
@@ -302,6 +320,7 @@ export default function QueueEase() {
   const [jSvc, setJSvc] = useState(ORGS[0].services[0]);
   const [jPhone, setJPhone] = useState("");
   const [jChannel, setJChannel] = useState("web");
+  const [pendingTicket, setPendingTicket] = useState(null);
 
   // admin state
   const [aOrg, setAOrg] = useState(ORGS[0].id);
@@ -331,6 +350,12 @@ export default function QueueEase() {
     setTimeout(()=>setToast(null), 3500);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("userRole");
+    localStorage.removeItem("token");
+    setView("landing");
+  };
+
   const joinQueue = ({orgId, service, phone, channel, token}) => {
     const org = ORGS.find(o=>o.id===orgId);
     const t = {
@@ -341,17 +366,8 @@ export default function QueueEase() {
       joinedAt: new Date(),
       orgId, service, orgName: org.name
     };
-    setCurrentTicket(t);
-    setView("ticket");
-    setQueue(q=>{
-      const nq = {...q};
-      const svcArr = nq[orgId];
-      const svcEntry = svcArr.find(s=>s.service===service);
-      if(svcEntry) svcEntry.tickets.push(t);
-      return nq;
-    });
-    setMyTickets(m=>[...m, t]);
-    showToast(`Token ${t.id} issued! You're in queue.`);
+    setPendingTicket(t);
+    setView("queue_confirmation");
     return t;
   };
 
@@ -406,19 +422,6 @@ export default function QueueEase() {
     <GlobalStyle/>
       <div style={{minHeight:"100vh", display:"flex", flexDirection:"column"}}>
 
-        {/* TICKER TAPE
-        <div className="ticker-wrap">
-          <div className="ticker-inner">
-            {[...Array(2)].map((_,rep)=>
-              ORGS.map(o=>(
-                <span key={`${o.id}-${rep}`} className="ticker-item">
-                  {o.id} · {o.name.split("–")[0].trim()} · {queue[o.id]?.reduce((a,s)=>a+s.tickets.filter(t=>t.status==="waiting").length,0)} waiting &nbsp;·&nbsp;
-                </span>
-              ))
-            )}
-          </div>
-        </div> */}
-
         {/* HEADER */}
         <header style={{
           background:"var(--card)", borderBottom:"1px solid var(--border)",
@@ -428,7 +431,7 @@ export default function QueueEase() {
           <div style={{display:"flex",alignItems:"center",gap:10}}>
             <div style={{
               width:50,height:50,borderRadius:8,
-              backgound:"linear-gradient(135deg,var(--teal),var(--teal2))",
+              background:"linear-gradient(135deg,var(--teal),var(--teal2))",
               display:"flex",alignItems:"center",justifyContent:"center"
             }}>
               <img 
@@ -460,9 +463,17 @@ export default function QueueEase() {
           </nav>
           )}
 
-          <div style={{display:"flex",alignItems:"center",gap:6}}>
-            <div className="live-dot"/>
-            <span style={{fontSize:12,color:"var(--muted)"}} className="mono hide-sm">{totalWaiting} active</span>
+          <div style={{display:"flex",alignItems:"center",gap:14}}>
+            <div style={{display:"flex",alignItems:"center",gap:6}}>
+              <div className="live-dot"/>
+              <span style={{fontSize:12,color:"var(--muted)"}} className="mono hide-sm">{totalWaiting} active</span>
+            </div>
+            {userRole && (
+              <button onClick={handleLogout} className="btn btn-ghost" style={{padding:"6px 14px",fontSize:12}}>
+                <Icon name="x" size={13}/>
+                Logout
+              </button>
+            )}
           </div>
         </header>
 
@@ -517,7 +528,10 @@ export default function QueueEase() {
 
           {currentView === "login" && (
             <OfficerLogin
-              onLoginSuccess={() => {}}  
+              onLoginSuccess={() => {
+                const role = localStorage.getItem("userRole");
+                setView(role === "officer" ? "admin" : role === "manager" ? "analytics" : "customer");
+              }}
               onSignupClick={() => setView("signup")}
             />
           )}
@@ -528,6 +542,35 @@ export default function QueueEase() {
               onLoginClick={() => setView("login")}
             />
           )}
+
+          {/* ── QUEUE CONFIRMATION ─────────────────────────────────── */}
+          {currentView === "queue_confirmation" && pendingTicket && (() => {
+            const svcEntry = queue[pendingTicket.orgId]?.find(s => s.service === pendingTicket.service);
+            const waitingCount = svcEntry?.tickets.filter(t => t.status === "waiting").length || 0;
+            const orgAvgMins = ORGS.find(o => o.id === pendingTicket.orgId)?.avgMins || 8;
+            return (
+              <QueueConfirmation
+                orgName={pendingTicket.orgName}
+                service={pendingTicket.service}
+                queueCount={waitingCount}
+                estimatedWait={waitingCount * orgAvgMins}
+                onConfirm={() => {
+                  setCurrentTicket(pendingTicket);
+                  setQueue(q=>{
+                    const nq = {...q};
+                    const svcArr = nq[pendingTicket.orgId];
+                    const entry = svcArr.find(s=>s.service===pendingTicket.service);
+                    if(entry) entry.tickets.push(pendingTicket);
+                    return nq;
+                  });
+                  setMyTickets(m=>[...m, pendingTicket]);
+                  showToast(`Token ${pendingTicket.id} issued! You're in queue.`);
+                  setView("ticket");
+                }}
+                onBack={() => setView("customer")}
+              />
+            );
+          })()}
 
           {/* ── DIGITAL TICKET VIEW (FULL SCREEN) ─────────────────── */}
           {currentView === "ticket" && (
