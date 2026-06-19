@@ -13,6 +13,8 @@ import ItsYourTurn from "./pages/ItsYourTurn"
 import ServiceCompleted from "./pages/ServiceCompleted"
 import LiveQueueStatus from "./pages/livequeue"
 import ServiceSelection from "./pages/ServiceSelection"
+import ManagerServiceDashboard from "./pages/ManagerServiceDashboard"
+import ManagerStaffDashboard from "./pages/ManagerStaffDashboard"
 
 const GlobalStyle = () => (
   <style>{`
@@ -79,10 +81,12 @@ const GlobalStyle = () => (
 );
 
 const allNavItems = [
-  {id:"landing", icon:"home",  label:"Home"},
-  {id:"customer",icon:"ticket",label:"Join Queue"},
-  {id:"admin",   icon:"users", label:"Staff Dashboard"},
-  {id:"analytics",icon:"chart",label:"Analytics"},
+  {id:"landing",          icon:"home",     label:"Home"},
+  {id:"customer",         icon:"ticket",   label:"Join Queue"},
+  {id:"admin",            icon:"users",    label:"Staff Dashboard"},
+  {id:"analytics",        icon:"chart",    label:"Analytics"},
+  {id:"manager_services", icon:"settings", label:"Services"},
+  {id:"manager_staff",    icon:"users",    label:"Staff"},
 ];
 
 const ORGS = [
@@ -91,6 +95,7 @@ const ORGS = [
   {id:"GRA003",name:"Ganah Revenue Authority",        services:["Tax Clearance","VAT Registration","TIN Issuance","Customs"],avgMins:15},
   {id:"NIA004",name:"National ID Authority",          services:["New Registration","Replacement Card","Address Update"],avgMins:10},
 ];
+
 
 let ticketCounter = 100;
 const genToken = (orgId) => `${orgId.slice(0,3)}-${++ticketCounter}`;
@@ -167,15 +172,17 @@ export default function QueueEase() {
 
   const userRole = typeof window !== "undefined" ? localStorage.getItem("userRole") : null;
   const navItems = allNavItems.filter(n => {
-    if(n.id==="admin")     return userRole==="officer";
-    if(n.id==="analytics") return userRole==="manager";
-    if(n.id==="customer")  return userRole==="citizen";
-    return n.id==="landing";
-  });
+  if(n.id==="admin")             return userRole==="officer";
+  if(n.id==="analytics")         return userRole==="manager";
+  if(n.id==="manager_services")  return userRole==="manager";
+  if(n.id==="manager_staff")     return userRole==="manager";
+  if(n.id==="customer")          return userRole==="citizen";
+  return n.id==="landing";
+});
 
   const currentView =
     userRole==="officer" && view==="login" ? "admin"
-    : userRole==="manager" && view==="login" ? "analytics"
+    : userRole === "manager" && view === "login" ? "manager_services"
     : userRole==="citizen" && view==="login" ? "customer"
     : view;
 
@@ -238,6 +245,15 @@ export default function QueueEase() {
     showToast("Ticket cancelled.","warning");
   };
 
+  useEffect(()=>{const t=setInterval(()=>setTick(x=>x+1),5000);return()=>clearInterval(t);},[]);
+
+useEffect(()=>{
+  const role=localStorage.getItem("userRole");
+  if(role==="officer") setView("admin");
+  if(role==="manager") setView("manager_services");
+  if(role==="citizen") setView("customer");
+},[]);
+
   const adminOrg = ORGS.find(o=>o.id===aOrg);
   const adminQueue = queue[aOrg]?.[aSvc];
   const totalWaiting = Object.values(queue).flat().reduce((a,s)=>a+s.tickets.filter(t=>t.status==="waiting").length,0);
@@ -258,7 +274,7 @@ export default function QueueEase() {
           <span className="syne" style={{fontWeight:800,fontSize:18,letterSpacing:"-.02em"}}>QueueEase</span>
         </div>
 
-        {currentView!=="landing" && currentView!=="ticket" && (
+        {currentView!=="landing" && currentView!=="ticket" && currentView!=="live_status" && (
           <nav style={{gap:2}} className="hide-sm">
             {navItems.map(n=>(
               <button key={n.id} onClick={()=>setView(n.id)} style={{border:"none",cursor:"pointer",borderRadius:8,padding:"7px 14px",fontSize:13,fontWeight:500,background:currentView===n.id?"var(--teal)":"transparent",color:currentView===n.id?"#fff":"var(--muted)",display:"flex",alignItems:"center",gap:6,fontFamily:"'DM Sans',sans-serif",transition:"all .18s"}}>
@@ -307,7 +323,7 @@ export default function QueueEase() {
         {currentView==="landing" && (
           <>
             <OfficerLanding onLoginAsOfficer={()=>setView("login")}/>
-            <ManagerLanding onSignupClick={()=>setView("signup")} onViewAnalytics={()=>setView("analytics")}/>
+            <ManagerLanding onSignupClick={()=>setView("signup")} onViewAnalytics={()=>setView("manager_services")}/>
           </>
         )}
 
@@ -316,7 +332,7 @@ export default function QueueEase() {
           <OfficerLogin
             onLoginSuccess={()=>{
               const role=localStorage.getItem("userRole");
-              setView(role==="officer"?"admin":role==="manager"?"analytics":"customer");
+              setView(role === "officer" ? "admin" : role === "manager" ? "manager_services" : "customer");
             }}
             onSignupClick={()=>setView("signup")}
           />
@@ -498,6 +514,7 @@ export default function QueueEase() {
                     )}
                   </tbody>
                 </table>
+
               </div>
             </div>
           </div>
@@ -570,6 +587,9 @@ export default function QueueEase() {
             </div>
           </div>
         )}
+
+        {currentView==="manager_services" && <ManagerServiceDashboard/>}
+          {currentView==="manager_staff"    && <ManagerStaffDashboard/>}
       </main>
 
       <footer style={{borderTop:"1px solid var(--border)",padding:"16px 24px",display:"flex",justifyContent:"space-between",alignItems:"center",background:"var(--card)"}}>
