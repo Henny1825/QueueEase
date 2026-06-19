@@ -6,7 +6,7 @@ import {
   FaClock,
 } from "react-icons/fa";
 
-const ConfirmQueue = () => {
+const ConfirmQueue = ({ orgName, service, queueCount, estimatedWait, onConfirm, onBack }) => {
   return (
     <>
       <style>{`
@@ -147,7 +147,7 @@ const ConfirmQueue = () => {
 
       <div className="confirm-page">
         <div className="top-bar">
-          <FaArrowLeft className="back-icon" />
+          <FaArrowLeft className="back-icon" onClick={onBack} />
         </div>
 
         <div className="header">
@@ -162,7 +162,7 @@ const ConfirmQueue = () => {
             </div>
             <div className="detail-text">
               <span>Service</span>
-              <h4>Passport Renewal</h4>
+              <h4>{service}</h4>
             </div>
           </div>
 
@@ -174,7 +174,7 @@ const ConfirmQueue = () => {
             </div>
             <div className="detail-text">
               <span>Location</span>
-              <h4>Lagos Service Center</h4>
+              <h4>{orgName}</h4>
             </div>
           </div>
 
@@ -186,7 +186,7 @@ const ConfirmQueue = () => {
             </div>
             <div className="detail-text">
               <span>Current Queue</span>
-              <h4>24 People</h4>
+              <h4>{queueCount} People</h4>
             </div>
           </div>
 
@@ -198,7 +198,7 @@ const ConfirmQueue = () => {
             </div>
             <div className="detail-text">
               <span>Estimated Wait Time</span>
-              <h4>25 Minutes</h4>
+              <h4>{estimatedWait} Minutes</h4>
             </div>
           </div>
         </div>
@@ -209,9 +209,11 @@ const ConfirmQueue = () => {
           when your turn approaches
         </div>
 
-        <button className="confirm-btn">Confirm</button>
+        <button className="confirm-btn" onClick={onConfirm}>
+          Confirm
+        </button>
 
-        <button className="back-btn">Back</button>
+        <button className="back-btn" onClick={onBack}>Back</button>
       </div>
     </>
   );
