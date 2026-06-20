@@ -44,10 +44,9 @@ export default function OfficerLoginForm({ onLoginSuccess, onSignupClick }) {
   }
 
   // Save role
-  if (data.role) {
-    localStorage.setItem("userRole", data.role);
-  }
-
+  if (data.user?.role) localStorage.setItem("userRole", data.user.role);
+  if (data.user?.orgId) localStorage.setItem("orgId", data.user.orgId);
+  
   // Save remember me preference
   if (rememberMe) {
     localStorage.setItem("rememberEmail", email);
@@ -55,9 +54,11 @@ export default function OfficerLoginForm({ onLoginSuccess, onSignupClick }) {
 
   // Redirect to dashboard via callback
   onLoginSuccess();
-} else {
+}
+ else {
         setError(data.message || "Invalid credentials");
       }
+      console.log("role from API:", data.role);
     } catch (err) {
       console.error(err);
       setError("Server connection failed. Please try again.");

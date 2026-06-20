@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   FaArrowLeft,
   FaBell,
@@ -6,8 +6,61 @@ import {
   FaMapMarkerAlt,
   FaClock,
 } from "react-icons/fa";
+import Queueease from "../assets/Queueease.png";
 
-const ItsYourTurn = () => {
+const DEFAULT_COUNTDOWN_SECONDS = 180; // 03:00, matches Figma
+
+const formatCountdown = (totalSeconds) => {
+  const safeSeconds = Math.max(0, totalSeconds);
+  const mins = Math.floor(safeSeconds / 60);
+  const secs = safeSeconds % 60;
+  return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+};
+
+const ItsYourTurn = ({
+  ticketId,
+  orgName,
+  counterLabel = "Counter 3",
+  countdownSeconds = DEFAULT_COUNTDOWN_SECONDS,
+  onBack,
+  onImHere,
+  onNeedHelp,
+  onTimeExpired,
+}) => {
+  // Self-contained countdown: starts from countdownSeconds (or the default
+  // 03:00 from Figma) and ticks down every second.
+  //
+  // Correctness notes:
+  // - The interval is set up exactly once per countdownSeconds value
+  //   (dependency array is [countdownSeconds], not [secondsLeft]), so it is
+  //   never re-created or duplicated as secondsLeft changes each tick.
+  // - The tick callback itself checks for reaching zero and calls
+  //   clearInterval + onTimeExpired exactly once at that moment, instead of
+  //   relying on the effect to re-run (which it would not, since the
+  //   dependency array does not include secondsLeft).
+  // - The cleanup function clears the interval on unmount or whenever
+  //   countdownSeconds changes (e.g. App.jsx resets the timer for a new
+  //   ticket), preventing leaked intervals.
+  const [secondsLeft, setSecondsLeft] = useState(countdownSeconds);
+
+  useEffect(() => {
+    setSecondsLeft(countdownSeconds);
+
+    const intervalId = setInterval(() => {
+      setSecondsLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(intervalId);
+          if (onTimeExpired) onTimeExpired();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [countdownSeconds]);
+
   return (
     <>
       <style>{`
@@ -149,6 +202,10 @@ const ItsYourTurn = () => {
           font-weight:300;
         }
 
+        .time.expired{
+          color:#ffd2d2;
+        }
+
         .time-label{
           font-size:14px;
           margin-top:-5px;
@@ -194,15 +251,8 @@ const ItsYourTurn = () => {
       <div className="page">
 
         <div className="header">
-          <FaArrowLeft className="icon" />
-
-          {/* Replace with your logo */}
-          <img
-            src="https://via.placeholder.com/70x40"
-            alt="QueueEase Logo"
-            className="logo"
-          />
-
+          <FaArrowLeft className="icon" onClick={onBack} />
+          <img src={Queueease} alt="QueueEase Logo" className="logo" />
           <FaBell className="icon" />
         </div>
 
@@ -227,7 +277,7 @@ const ItsYourTurn = () => {
             </div>
 
             <div className="ticket-number">
-              A-025
+              {ticketId}
             </div>
 
             <div className="counter-row">
@@ -236,27 +286,29 @@ const ItsYourTurn = () => {
               </span>
 
               <span className="counter-badge">
-                Counter 3
+                {counterLabel}
               </span>
             </div>
 
             <div className="location">
               <FaMapMarkerAlt />
-              <span>Lagos Service Center</span>
+              <span>{orgName}</span>
             </div>
 
           </div>
 
           <div className="timer-text">
-            Please check in before the time runs out
+            {secondsLeft > 0
+              ? "Please check in before the time runs out"
+              : "Time is up — please check in now"}
           </div>
 
           <div className="timer">
             <FaClock />
 
             <div>
-              <div className="time">
-                03:00
+              <div className={`time ${secondsLeft <= 0 ? "expired" : ""}`}>
+                {formatCountdown(secondsLeft)}
               </div>
 
               <div className="time-label">
@@ -267,11 +319,11 @@ const ItsYourTurn = () => {
 
         </div>
 
-        <button className="btn-primary">
+        <button className="btn-primary" onClick={onImHere}>
           I'm Here
         </button>
 
-        <button className="btn-secondary">
+        <button className="btn-secondary" onClick={onNeedHelp}>
           Need Help?
         </button>
 

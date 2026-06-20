@@ -75,6 +75,10 @@ export default function ManagerSignupForm({ onSignupSuccess, onLoginClick }) {
       setError("Organization location is required");
       return false;
     }
+    if (!availability) {
+      setError("Please select availability");
+      return false;
+    }
     return true;
   };
 
@@ -105,6 +109,7 @@ export default function ManagerSignupForm({ onSignupSuccess, onLoginClick }) {
           availability: availability || "24/7",
           openingTime,
           closingTime,
+          orgCode: orgName.replace(/\s+/g, "").toUpperCase().slice(0, 6),
         },
       };
 

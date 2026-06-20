@@ -1,4 +1,4 @@
-import React from "react";
+// import React from "react";
 import {
   FaBell,
   FaUserCircle,
@@ -6,8 +6,27 @@ import {
   FaUsers,
   FaClock,
 } from "react-icons/fa";
+import Queueease from "../assets/Queueease.png";
 
-const QueueTicket = () => {
+const QueueTicket = ({
+  ticketId,
+  service,
+  orgName,
+  position,
+  estimatedWait,
+  joinedText,
+  nowServingId,
+  onViewLiveStatus,
+  onLeaveQueue,
+}) => {
+  // Progress bar: 9 segments total, filled proportionally to how close
+  // the person is to being served. Caps so it never overflows visually.
+  const totalSegments = 9;
+  const filledSegments = Math.max(
+    0,
+    Math.min(totalSegments, totalSegments - Math.ceil((position || 0) / 3))
+  );
+
   return (
     <>
       <style>{`
@@ -196,11 +215,7 @@ const QueueTicket = () => {
 
       <div className="ticket-page">
         <div className="top-header">
-          <img
-            src="https://via.placeholder.com/70x50"
-            alt="logo"
-            className="logo"
-          />
+          <img src={Queueease} alt="QueueEase logo" className="logo" />
           <FaBell className="bell" />
         </div>
 
@@ -208,9 +223,7 @@ const QueueTicket = () => {
 
         <div className="ticket-card">
           <h3>YOUR NUMBER</h3>
-
-          <div className="ticket-number">A-025</div>
-
+          <div className="ticket-number">{ticketId}</div>
           <div className="status">IN QUEUE</div>
         </div>
 
@@ -218,31 +231,31 @@ const QueueTicket = () => {
           <div className="row">
             <FaUserCircle />
             <span className="label">Service</span>
-            <span className="value">Passport Renewal</span>
+            <span className="value">{service}</span>
           </div>
 
           <div className="row">
             <FaMapMarkerAlt />
             <span className="label">Location</span>
-            <span className="value">Lagos Service Center</span>
+            <span className="value">{orgName}</span>
           </div>
 
           <div className="row">
             <FaUsers />
             <span className="label">Your Position</span>
-            <span className="value">25</span>
+            <span className="value">{position}</span>
           </div>
 
           <div className="row">
             <FaClock />
             <span className="label">Estimated Wait Time</span>
-            <span className="value">24 Minutes</span>
+            <span className="value">{estimatedWait} Minutes</span>
           </div>
 
           <div className="row">
             <span style={{ width: "33px" }}></span>
             <span className="label">Joined</span>
-            <span className="value">Today, 10:35 AM</span>
+            <span className="value">{joinedText}</span>
           </div>
         </div>
 
@@ -250,25 +263,22 @@ const QueueTicket = () => {
           <div className="status-top">
             <div>
               <div className="small">Now Serving</div>
-              <div className="bold">A-001</div>
+              <div className="bold">{nowServingId}</div>
             </div>
 
             <div style={{ textAlign: "right" }}>
               <div className="small">Your Number</div>
-              <div className="bold">A-025</div>
+              <div className="bold">{ticketId}</div>
             </div>
           </div>
 
           <div className="progress">
-            <div className="bar active"></div>
-            <div className="bar active"></div>
-            <div className="bar active"></div>
-            <div className="bar active"></div>
-            <div className="bar"></div>
-            <div className="bar"></div>
-            <div className="bar"></div>
-            <div className="bar"></div>
-            <div className="bar"></div>
+            {Array.from({ length: totalSegments }, (_, i) => (
+              <div
+                key={i}
+                className={`bar ${i < filledSegments ? "active" : ""}`}
+              />
+            ))}
           </div>
 
           <p className="notify">
@@ -276,11 +286,11 @@ const QueueTicket = () => {
           </p>
         </div>
 
-        <button className="live-btn">
+        <button className="live-btn" onClick={onViewLiveStatus}>
           View Live Status
         </button>
 
-        <button className="leave-btn">
+        <button className="leave-btn" onClick={onLeaveQueue}>
           Leave Queue
         </button>
       </div>

@@ -1,4 +1,4 @@
-import React from "react";
+// import React from "react";
 import {
   FaArrowLeft,
   FaBell,
@@ -7,8 +7,17 @@ import {
   FaMapMarkerAlt,
   FaExclamation,
 } from "react-icons/fa";
+import Queueease from "../assets/Queueease.png";
 
-const NextInQueue = () => {
+const NextInQueue = ({
+  ticketId,
+  orgName,
+  peopleAhead = 0,
+  estimatedWaitText = "< 2 mins",
+  onBack,
+  onImOnMyWay,
+  onNeedMoreTime,
+}) => {
   return (
     <>
       <style>{`
@@ -185,15 +194,8 @@ const NextInQueue = () => {
       <div className="page">
 
         <div className="header">
-          <FaArrowLeft className="icon" />
-
-          {/* Replace with your logo */}
-          <img
-            src="https://via.placeholder.com/70x40"
-            alt="logo"
-            className="logo"
-          />
-
+          <FaArrowLeft className="icon" onClick={onBack} />
+          <img src={Queueease} alt="QueueEase logo" className="logo" />
           <FaBell className="icon" />
         </div>
 
@@ -213,7 +215,7 @@ const NextInQueue = () => {
             </div>
 
             <div className="ticket-number">
-              A-025
+              {ticketId}
             </div>
 
             <div className="status">
@@ -229,7 +231,7 @@ const NextInQueue = () => {
             <div className="stat-label">
               People Ahead
             </div>
-            <div className="stat-value">0</div>
+            <div className="stat-value">{peopleAhead}</div>
           </div>
 
           <div className="stat-card">
@@ -238,27 +240,27 @@ const NextInQueue = () => {
               Estimated Wait
             </div>
             <div className="stat-value">
-              &lt; 2 mins
+              {estimatedWaitText}
             </div>
           </div>
 
           <div className="stat-card">
             <FaMapMarkerAlt />
             <div className="stat-label">
-              Lagos
+              Location
             </div>
             <div className="stat-sub">
-              Lagos Service Center
+              {orgName}
             </div>
           </div>
 
         </div>
 
-        <button className="primary-btn">
+        <button className="primary-btn" onClick={onImOnMyWay}>
           I'm On My Way
         </button>
 
-        <button className="secondary-btn">
+        <button className="secondary-btn" onClick={onNeedMoreTime}>
           Need More Time?
         </button>
 

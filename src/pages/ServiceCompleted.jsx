@@ -7,7 +7,15 @@ import {
   FaClock,
 } from "react-icons/fa";
 
-const ServiceCompleted = () => {
+const ServiceCompleted = ({
+  service,
+  orgName,
+  servedAt,
+  completedDate,
+  totalWaitMins,
+  onJoinAnother,
+  onReturnHome,
+}) => {
   return (
     <>
       <style>{`
@@ -178,7 +186,7 @@ const ServiceCompleted = () => {
             <FaIdCard />
             <span className="label">Service</span>
             <span className="value">
-              Passport Renewal
+              {service}
             </span>
           </div>
 
@@ -186,7 +194,7 @@ const ServiceCompleted = () => {
             <FaMapMarkerAlt />
             <span className="label">Serve at</span>
             <span className="value">
-              11:02 AM
+              {servedAt}
             </span>
           </div>
 
@@ -194,7 +202,7 @@ const ServiceCompleted = () => {
             <FaCalendarAlt />
             <span className="label">Date</span>
             <span className="value">
-              June 5, 2026
+              {completedDate}
             </span>
           </div>
 
@@ -204,17 +212,17 @@ const ServiceCompleted = () => {
               Total Wait Time
             </span>
             <span className="value">
-              18 Minutes
+              {totalWaitMins} Minutes
             </span>
           </div>
 
         </div>
 
-        <button className="join-btn">
+        <button className="join-btn" onClick={onJoinAnother}>
           Join Another Queue
         </button>
 
-        <button className="home-btn">
+        <button className="home-btn" onClick={onReturnHome}>
           Return Home
         </button>
 

@@ -173,16 +173,16 @@ export default function QueueEase() {
   const userRole = typeof window !== "undefined" ? localStorage.getItem("userRole") : null;
   const navItems = allNavItems.filter(n => {
   if(n.id==="admin")             return userRole==="officer";
-  if(n.id==="analytics")         return userRole==="manager";
-  if(n.id==="manager_services")  return userRole==="manager";
-  if(n.id==="manager_staff")     return userRole==="manager";
+  if(n.id==="analytics")         return userRole==="owner";
+  if(n.id==="manager_services")  return userRole==="owner";
+  if(n.id==="manager_staff")     return userRole==="owner";
   if(n.id==="customer")          return userRole==="citizen";
   return n.id==="landing";
 });
 
   const currentView =
     userRole==="officer" && view==="login" ? "admin"
-    : userRole === "manager" && view === "login" ? "manager_services"
+    : userRole === "owner" && view === "login" ? "manager_services"
     : userRole==="citizen" && view==="login" ? "customer"
     : view;
 
@@ -247,10 +247,12 @@ export default function QueueEase() {
 
   useEffect(()=>{const t=setInterval(()=>setTick(x=>x+1),5000);return()=>clearInterval(t);},[]);
 
+  
 useEffect(()=>{
   const role=localStorage.getItem("userRole");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   if(role==="officer") setView("admin");
-  if(role==="manager") setView("manager_services");
+  if(role==="owner") setView("manager_services");
   if(role==="citizen") setView("customer");
 },[]);
 
@@ -332,7 +334,7 @@ useEffect(()=>{
           <OfficerLogin
             onLoginSuccess={()=>{
               const role=localStorage.getItem("userRole");
-              setView(role === "officer" ? "admin" : role === "manager" ? "manager_services" : "customer");
+              setView(role === "officer" ? "admin" : role === "owner" ? "manager_services" : "customer");
             }}
             onSignupClick={()=>setView("signup")}
           />
