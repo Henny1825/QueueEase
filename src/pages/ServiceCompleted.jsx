@@ -1,4 +1,3 @@
-import React from "react";
 import {
   FaCheck,
   FaIdCard,
@@ -9,7 +8,6 @@ import {
 
 const ServiceCompleted = ({
   service,
-  orgName,
   servedAt,
   completedDate,
   totalWaitMins,

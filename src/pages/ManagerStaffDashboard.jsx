@@ -1,34 +1,21 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 
-/**
- * ManagerStaffDashboard.jsx
- *
- * Manager-facing Staff Management screen. Built to match the same visual
- * language established in ManagerServiceDashboard.jsx (which mirrors the
- * Figma "Service Management" screens) since no Staff Management screen
- * exists yet in the Figma file. Same teal/mint palette, same card + table
- * patterns, same stat-row treatment, so it slots in next to Service
- * Management without looking like a different app.
- *
- * This is a content-area component only — no sidebar/header chrome.
- *
- * API WIRING:
- * All network calls are isolated in the `staffApi` object below.
- * Replace the bodies with real calls to:
- *   GET    /staff
- *   POST   /staff
- *   PATCH  /staff/{id}/role
- *   DELETE /staff/{id}
- * The component only calls staffApi.* — no fetch/axios calls scattered
- * through JSX, so wiring later means editing one place.
- *
- * Fields used (dummy data, confirm against real API contract later):
- *   name, email, phone, role, department, status, joinedDate
- */
+const API_BASE = "https://queue-ease-apis.onrender.com";
 
-// ---------------------------------------------------------------------
-// Mock data (stand-in for GET /staff)
-// ---------------------------------------------------------------------
+const authFetch = async (path, options = {}) => {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${API_BASE}${path}`, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(options.headers || {}),
+    },
+  });
+  const data = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(data?.message || `Request failed (${res.status})`);
+  return data;
+};
 
 const MOCK_STAFF = [
   { id: "STF001", name: "Adaeze Okafor", email: "adaeze.okafor@queueease.com", phone: "+234 802 123 4567", role: "Officer", department: "Immigration", status: "Active", joinedDate: "2026-01-12" },
@@ -42,53 +29,44 @@ const ROLES = ["Officer", "Senior Officer", "Supervisor"];
 const DEPARTMENTS = ["Immigration", "Finance", "Health", "Transport", "Civil Registry"];
 const PAGE_SIZE = 7;
 
-// ---------------------------------------------------------------------
-// API stub layer — swap these bodies for real fetch calls later.
-// ---------------------------------------------------------------------
-
 const staffApi = {
   async list() {
-    // TODO: replace with `GET /staff`
-    return new Promise((resolve) => setTimeout(() => resolve(MOCK_STAFF), 300));
+    return authFetch("/api/staff");
   },
   async create(payload) {
-    // TODO: replace with `POST /staff`
-    return new Promise((resolve) =>
-      setTimeout(
-        () =>
-          resolve({
-            ...payload,
-            id: `STF${Date.now()}`,
-            status: "Active",
-            joinedDate: new Date().toISOString().slice(0, 10),
-          }),
-        300
-      )
-    );
+    return authFetch("/api/staff", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
   },
   async updateRole(id, role) {
-    // TODO: replace with `PATCH /staff/{id}/role`
-    return new Promise((resolve) => setTimeout(() => resolve({ id, role }), 300));
+    return authFetch(`/api/staff/${id}/role`, {
+      method: "PATCH",
+      body: JSON.stringify({ role }),
+    });
   },
   async update(id, payload) {
-    // TODO: replace with appropriate PATCH endpoint for full profile edits
-    return new Promise((resolve) => setTimeout(() => resolve({ id, ...payload }), 300));
+    return authFetch(`/api/staff/${id}/edit`, {
+      method: "PATCH",
+      body: JSON.stringify({
+        name: payload.name,
+        email: payload.email,
+        phone: payload.phone,
+        serviceId: payload.serviceId || null,
+      }),
+    });
   },
   async remove(id) {
-    // TODO: replace with `DELETE /staff/{id}`
-    return new Promise((resolve) => setTimeout(() => resolve({ id }), 300));
+    return authFetch(`/api/staff/${id}/delete`, { method: "DELETE" });
   },
 };
-
-// ---------------------------------------------------------------------
-// Empty form shape
-// ---------------------------------------------------------------------
 
 function emptyForm() {
   return {
     name: "",
     email: "",
     phone: "",
+    password: "",
     role: ROLES[0],
     department: DEPARTMENTS[0],
   };
@@ -99,22 +77,20 @@ function formFromStaff(s) {
     name: s.name,
     email: s.email,
     phone: s.phone,
+    password: "",
     role: s.role,
     department: s.department,
   };
 }
 
-// ---------------------------------------------------------------------
-// Main component
-// ---------------------------------------------------------------------
-
 export default function ManagerStaffDashboard() {
   const [staff, setStaff] = useState(MOCK_STAFF);
-  const [mode, setMode] = useState("list"); // list | create | edit
+  const [mode, setMode] = useState("list");
   const [activeStaffId, setActiveStaffId] = useState(null);
   const [showRemoveModal, setShowRemoveModal] = useState(false);
   const [removeTargetId, setRemoveTargetId] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [actionError, setActionError] = useState("");
 
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("All Roles");
@@ -122,6 +98,17 @@ export default function ManagerStaffDashboard() {
 
   const [form, setForm] = useState(emptyForm());
   const [formErrors, setFormErrors] = useState({});
+
+  useEffect(() => {
+    staffApi.list()
+      .then(data => {
+        const list = Array.isArray(data) ? data : data?.staff || data?.data || [];
+        if (list.length > 0) setStaff(list);
+      })
+      .catch((err) => {
+        console.error("Failed to load staff list:", err);
+      });
+  }, []);
 
   const stats = useMemo(() => {
     const total = staff.length;
@@ -150,10 +137,6 @@ export default function ManagerStaffDashboard() {
     [staff, removeTargetId]
   );
 
-  // -------------------------------------------------------------------
-  // Handlers
-  // -------------------------------------------------------------------
-
   function openCreate() {
     setForm(emptyForm());
     setFormErrors({});
@@ -179,7 +162,7 @@ export default function ManagerStaffDashboard() {
     setForm((prev) => ({ ...prev, [field]: value }));
   }
 
-  function validateForm() {
+  function validateForm(isEdit) {
     const errors = {};
     if (!form.name.trim()) errors.name = "Full name is required";
     if (!form.email.trim()) {
@@ -188,6 +171,7 @@ export default function ManagerStaffDashboard() {
       errors.email = "Enter a valid email address";
     }
     if (!form.phone.trim()) errors.phone = "Phone number is required";
+    if (!isEdit && !form.password?.trim()) errors.password = "Password is required";
     if (!form.role) errors.role = "Role is required";
     if (!form.department) errors.department = "Department is required";
     return errors;
@@ -195,15 +179,24 @@ export default function ManagerStaffDashboard() {
 
   async function handleCreateSubmit(e) {
     e.preventDefault();
-    const errors = validateForm();
+    const errors = validateForm(false);
     setFormErrors(errors);
     if (Object.keys(errors).length > 0) return;
 
     setSubmitting(true);
     try {
-      const created = await staffApi.create(form);
+      const created = await staffApi.create({
+        name: form.name,
+        email: form.email,
+        phone: form.phone,
+        password: form.password,
+        role: form.role,
+        serviceId: null,
+      });
       setStaff((prev) => [created, ...prev]);
       backToList();
+    } catch (err) {
+      setFormErrors({ submit: err.message });
     } finally {
       setSubmitting(false);
     }
@@ -211,7 +204,7 @@ export default function ManagerStaffDashboard() {
 
   async function handleEditSubmit(e) {
     e.preventDefault();
-    const errors = validateForm();
+    const errors = validateForm(true);
     setFormErrors(errors);
     if (Object.keys(errors).length > 0) return;
 
@@ -226,6 +219,8 @@ export default function ManagerStaffDashboard() {
         prev.map((s) => (s.id === activeStaffId ? { ...s, ...form, id: s.id } : s))
       );
       backToList();
+    } catch (err) {
+      setFormErrors({ submit: err.message });
     } finally {
       setSubmitting(false);
     }
@@ -243,6 +238,10 @@ export default function ManagerStaffDashboard() {
       setStaff((prev) => prev.filter((s) => s.id !== removeTargetId));
       setShowRemoveModal(false);
       setRemoveTargetId(null);
+    } catch (error) {
+      console.error("Failed to remove staff member:", error);
+      setActionError("Could not remove this officer. Please try again.");
+      setShowRemoveModal(false);
     } finally {
       setSubmitting(false);
     }
@@ -254,16 +253,15 @@ export default function ManagerStaffDashboard() {
     const nextStatus = target.status === "Active" ? "Suspended" : "Active";
     setSubmitting(true);
     try {
-      await staffApi.update(id, { status: nextStatus });
+      await staffApi.update(id, { ...target, status: nextStatus });
       setStaff((prev) => prev.map((s) => (s.id === id ? { ...s, status: nextStatus } : s)));
+    } catch (err) {
+      console.error("Failed to update staff status:", err);
+      setActionError("Could not update this officer's status. Please try again.");
     } finally {
       setSubmitting(false);
     }
   }
-
-  // -------------------------------------------------------------------
-  // Render: EMPTY STATE
-  // -------------------------------------------------------------------
 
   if (mode === "list" && staff.length === 0) {
     return (
@@ -278,8 +276,7 @@ export default function ManagerStaffDashboard() {
           </div>
           <h2 className="stf-empty-title">No Staff Added</h2>
           <p className="stf-empty-text">
-            You have not added any officers yet.
-            <br />
+            You have not added any officers yet.<br />
             Add your first officer to begin assigning queues
           </p>
           <button type="button" className="stf-btn stf-btn-primary" onClick={openCreate}>
@@ -290,10 +287,6 @@ export default function ManagerStaffDashboard() {
       </div>
     );
   }
-
-  // -------------------------------------------------------------------
-  // Render: LIST STATE
-  // -------------------------------------------------------------------
 
   if (mode === "list") {
     return (
@@ -307,6 +300,20 @@ export default function ManagerStaffDashboard() {
             </button>
           }
         />
+
+        {actionError && (
+          <div className="stf-action-error" role="alert">
+            {actionError}
+            <button
+              type="button"
+              className="stf-action-error-dismiss"
+              onClick={() => setActionError("")}
+              aria-label="Dismiss error"
+            >
+              &times;
+            </button>
+          </div>
+        )}
 
         <div className="stf-stats-row">
           <StatCard value={stats.total} label="Total Staff" tone="neutral" />
@@ -322,24 +329,16 @@ export default function ManagerStaffDashboard() {
               type="text"
               placeholder="Search by name or email"
               value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setPage(1);
-              }}
+              onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }}
             />
           </div>
           <select
             className="stf-select"
             value={roleFilter}
-            onChange={(e) => {
-              setRoleFilter(e.target.value);
-              setPage(1);
-            }}
+            onChange={(e) => { setRoleFilter(e.target.value); setPage(1); }}
           >
             <option>All Roles</option>
-            {ROLES.map((r) => (
-              <option key={r}>{r}</option>
-            ))}
+            {ROLES.map((r) => (<option key={r}>{r}</option>))}
           </select>
         </div>
 
@@ -359,9 +358,7 @@ export default function ManagerStaffDashboard() {
             <tbody>
               {pagedStaff.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="stf-table-empty">
-                    No staff match your search.
-                  </td>
+                  <td colSpan={7} className="stf-table-empty">No staff match your search.</td>
                 </tr>
               ) : (
                 pagedStaff.map((s) => (
@@ -373,10 +370,8 @@ export default function ManagerStaffDashboard() {
                     <td>{s.email}</td>
                     <td>{s.phone}</td>
                     <td>{s.role}</td>
-                    <td>{s.department}</td>
-                    <td>
-                      <StatusBadge status={s.status} />
-                    </td>
+                    <td>{s.department || "—"}</td>
+                    <td><StatusBadge status={s.status} /></td>
                     <td>
                       <div className="stf-row-actions">
                         <button type="button" className="stf-link-btn" onClick={() => openEdit(s.id)}>
@@ -417,9 +412,8 @@ export default function ManagerStaffDashboard() {
               className="stf-page-btn"
               disabled={page === 1}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
-              aria-label="Previous page"
             >
-              ‹
+              &lsaquo;
             </button>
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
               <button
@@ -436,9 +430,8 @@ export default function ManagerStaffDashboard() {
               className="stf-page-btn"
               disabled={page === totalPages}
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              aria-label="Next page"
             >
-              ›
+              &rsaquo;
             </button>
           </div>
         </div>
@@ -446,10 +439,7 @@ export default function ManagerStaffDashboard() {
         {showRemoveModal && removeTarget && (
           <RemoveModal
             name={removeTarget.name}
-            onCancel={() => {
-              setShowRemoveModal(false);
-              setRemoveTargetId(null);
-            }}
+            onCancel={() => { setShowRemoveModal(false); setRemoveTargetId(null); }}
             onConfirm={handleConfirmRemove}
             submitting={submitting}
           />
@@ -459,10 +449,6 @@ export default function ManagerStaffDashboard() {
       </div>
     );
   }
-
-  // -------------------------------------------------------------------
-  // Render: CREATE / EDIT FORM
-  // -------------------------------------------------------------------
 
   if (mode === "create" || mode === "edit") {
     const isEdit = mode === "edit";
@@ -501,7 +487,7 @@ export default function ManagerStaffDashboard() {
                   type="email"
                   value={form.email}
                   onChange={(e) => updateField("email", e.target.value)}
-                  placeholder="adaeze.okafor@queueease.com"
+                  placeholder="adaeze.okafor@example.com"
                   disabled={isEdit}
                 />
               </Field>
@@ -513,38 +499,43 @@ export default function ManagerStaffDashboard() {
                   placeholder="+234 802 123 4567"
                 />
               </Field>
+              {!isEdit && (
+                <Field label="Password" error={formErrors.password} required>
+                  <input
+                    type="password"
+                    value={form.password || ""}
+                    onChange={(e) => updateField("password", e.target.value)}
+                    placeholder="Temporary password"
+                  />
+                </Field>
+              )}
             </div>
           </div>
 
           <div className="stf-form-section">
             <div className="stf-form-section-header">
               <span className="stf-section-number">2</span>
-              <h3>Role & Department</h3>
+              <h3>Role and Department</h3>
             </div>
             <div className="stf-form-section-body">
               <Field label="Role" error={formErrors.role} required>
                 <select value={form.role} onChange={(e) => updateField("role", e.target.value)}>
-                  {ROLES.map((r) => (
-                    <option key={r} value={r}>
-                      {r}
-                    </option>
-                  ))}
+                  {ROLES.map((r) => (<option key={r} value={r}>{r}</option>))}
                 </select>
               </Field>
               <Field label="Department" error={formErrors.department} required>
-                <select
-                  value={form.department}
-                  onChange={(e) => updateField("department", e.target.value)}
-                >
-                  {DEPARTMENTS.map((d) => (
-                    <option key={d} value={d}>
-                      {d}
-                    </option>
-                  ))}
+                <select value={form.department} onChange={(e) => updateField("department", e.target.value)}>
+                  {DEPARTMENTS.map((d) => (<option key={d} value={d}>{d}</option>))}
                 </select>
               </Field>
             </div>
           </div>
+
+          {formErrors.submit && (
+            <div style={{ color: "#f43f5e", fontSize: 13, marginBottom: 12 }}>
+              {formErrors.submit}
+            </div>
+          )}
 
           <div className="stf-form-actions">
             <button
@@ -566,14 +557,9 @@ export default function ManagerStaffDashboard() {
     );
   }
 
-  // Fallback
   backToList();
   return null;
 }
-
-// ---------------------------------------------------------------------
-// Subcomponents
-// ---------------------------------------------------------------------
 
 function StaffHeader({ title, subtitle, action }) {
   return (
@@ -616,12 +602,10 @@ function Field({ label, required, error, children }) {
 
 function RemoveModal({ name, onCancel, onConfirm, submitting }) {
   return (
-    <div className="stf-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="remove-title">
+    <div className="stf-modal-overlay" role="dialog" aria-modal="true">
       <div className="stf-modal">
         <div className="stf-modal-icon">!</div>
-        <h3 id="remove-title" className="stf-modal-title">
-          Remove Officer?
-        </h3>
+        <h3 className="stf-modal-title">Remove Officer?</h3>
         <p className="stf-modal-text">
           {name} will lose access to this organization's queue system
         </p>
@@ -670,12 +654,6 @@ function initials(name) {
     .toUpperCase();
 }
 
-// ---------------------------------------------------------------------
-// Styles (mirrors ManagerServiceDashboard's CSS variable conventions,
-// namespaced with stf- prefix to avoid collisions if both components
-// are mounted on the same page)
-// ---------------------------------------------------------------------
-
 const STYLES = `
 .stf-root {
   --stf-teal: #14b8a6;
@@ -699,7 +677,6 @@ const STYLES = `
   box-sizing: border-box;
 }
 .stf-root * { box-sizing: border-box; }
-
 .stf-page-header {
   display: flex;
   align-items: flex-start;
@@ -711,7 +688,29 @@ const STYLES = `
 .stf-page-title { font-size: 26px; font-weight: 700; margin: 0 0 6px; }
 .stf-page-subtitle { margin: 0; color: var(--stf-text-muted); font-size: 14px; }
 .stf-header-right { display: flex; align-items: center; gap: 12px; }
-
+.stf-action-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--stf-rose-soft);
+  color: var(--stf-rose);
+  border: 1px solid var(--stf-rose);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+.stf-action-error-dismiss {
+  background: none;
+  border: none;
+  color: var(--stf-rose);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 4px;
+}
 .stf-btn {
   border: none;
   border-radius: 8px;
@@ -732,7 +731,6 @@ const STYLES = `
 .stf-btn-outline:hover:not(:disabled) { background: #f8fafc; }
 .stf-btn-danger { background: var(--stf-rose); color: #fff; }
 .stf-btn-danger:hover:not(:disabled) { background: #e11d48; }
-
 .stf-link-btn {
   background: none;
   border: none;
@@ -746,7 +744,6 @@ const STYLES = `
 .stf-link-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .stf-link-btn.is-danger { color: var(--stf-rose); }
 .stf-row-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-
 .stf-empty {
   background: #fff;
   border-radius: 16px;
@@ -759,7 +756,6 @@ const STYLES = `
 .stf-empty-illustration { margin-bottom: 24px; }
 .stf-empty-title { font-size: 20px; font-weight: 700; margin: 0 0 10px; }
 .stf-empty-text { color: var(--stf-text-muted); font-size: 14px; line-height: 1.6; margin: 0 0 28px; }
-
 .stf-stats-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -773,7 +769,6 @@ const STYLES = `
 .stf-stat-card.tone-rose .stf-stat-value { color: var(--stf-rose); }
 .stf-stat-card.tone-amber .stf-stat-value { color: var(--stf-amber); }
 .stf-stat-card.tone-neutral .stf-stat-value { color: var(--stf-text); }
-
 .stf-toolbar { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
 .stf-search {
   flex: 1;
@@ -797,7 +792,6 @@ const STYLES = `
   color: var(--stf-text);
   min-width: 150px;
 }
-
 .stf-table-wrap {
   background: #fff;
   border-radius: 12px;
@@ -818,7 +812,6 @@ const STYLES = `
 .stf-table tr:last-child td { border-bottom: none; }
 .stf-table-name { font-weight: 600; display: flex; align-items: center; gap: 10px; }
 .stf-table-empty { text-align: center; color: var(--stf-text-muted); padding: 32px 0; }
-
 .stf-avatar {
   width: 28px;
   height: 28px;
@@ -832,11 +825,9 @@ const STYLES = `
   font-weight: 700;
   flex-shrink: 0;
 }
-
 .stf-status-badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; }
 .stf-status-badge.is-active { background: var(--stf-mint-shadow); color: var(--stf-teal-dark); }
 .stf-status-badge.is-suspended { background: var(--stf-rose-soft); color: var(--stf-rose); }
-
 .stf-pagination {
   display: flex;
   align-items: center;
@@ -859,7 +850,6 @@ const STYLES = `
 }
 .stf-page-btn.is-active { background: var(--stf-teal); color: #fff; border-color: var(--stf-teal); }
 .stf-page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
 .stf-form-section {
   background: #fff;
   border-radius: 12px;
@@ -884,7 +874,6 @@ const STYLES = `
 }
 .stf-form-section-header h3 { font-size: 15px; font-weight: 700; margin: 0; }
 .stf-form-section-body { display: flex; flex-direction: column; gap: 14px; }
-
 .stf-field { display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
 .stf-field-label { font-weight: 600; color: var(--stf-text); }
 .stf-required { color: var(--stf-rose); margin-left: 2px; }
@@ -905,9 +894,7 @@ const STYLES = `
 }
 .stf-field input:disabled { background: #f1f5f9; color: var(--stf-text-muted); }
 .stf-field-error { font-size: 11px; color: var(--stf-rose); font-weight: 600; }
-
 .stf-form-actions { display: flex; gap: 12px; max-width: 520px; }
-
 .stf-modal-overlay {
   position: fixed;
   inset: 0;
@@ -936,7 +923,6 @@ const STYLES = `
 .stf-modal-text { font-size: 13px; color: var(--stf-text-muted); margin: 0 0 24px; }
 .stf-modal-actions { display: flex; gap: 12px; }
 .stf-modal-actions .stf-btn { flex: 1; justify-content: center; }
-
 @media (max-width: 900px) {
   .stf-stats-row { grid-template-columns: repeat(2, 1fr); }
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   FaArrowLeft,
   FaBell,
@@ -27,25 +27,27 @@ const ItsYourTurn = ({
   onNeedHelp,
   onTimeExpired,
 }) => {
-  // Self-contained countdown: starts from countdownSeconds (or the default
-  // 03:00 from Figma) and ticks down every second.
+  // Self-contained countdown: starts from countdownSeconds (default 03:00
+  // from Figma) and ticks down every second.
   //
   // Correctness notes:
-  // - The interval is set up exactly once per countdownSeconds value
-  //   (dependency array is [countdownSeconds], not [secondsLeft]), so it is
-  //   never re-created or duplicated as secondsLeft changes each tick.
-  // - The tick callback itself checks for reaching zero and calls
-  //   clearInterval + onTimeExpired exactly once at that moment, instead of
-  //   relying on the effect to re-run (which it would not, since the
-  //   dependency array does not include secondsLeft).
-  // - The cleanup function clears the interval on unmount or whenever
-  //   countdownSeconds changes (e.g. App.jsx resets the timer for a new
-  //   ticket), preventing leaked intervals.
+  // - useState(countdownSeconds) sets the correct initial value on mount;
+  //   the effect does not also call setSecondsLeft at the top of its body
+  //   (that pattern is what react-hooks/set-state-in-effect flags as a
+  //   cascading-render risk).
+  // - The effect's only job is to start ONE interval. The tick callback
+  //   checks for reaching zero and calls clearInterval + onTimeExpired
+  //   exactly once at that moment, instead of relying on the effect to
+  //   re-run (it would not, since secondsLeft is not a dependency).
+  // - IMPORTANT: useState's initial value only applies on first mount. If
+  //   App.jsx ever reuses this component for a NEW ticket with a fresh
+  //   countdown while it stays mounted, pass a per-ticket `key` prop from
+  //   the parent, e.g. <ItsYourTurn key={ticketId} ... />, so React
+  //   remounts it fresh. Without a key change, secondsLeft keeps counting
+  //   from wherever it left off.
   const [secondsLeft, setSecondsLeft] = useState(countdownSeconds);
 
   useEffect(() => {
-    setSecondsLeft(countdownSeconds);
-
     const intervalId = setInterval(() => {
       setSecondsLeft((prev) => {
         if (prev <= 1) {
