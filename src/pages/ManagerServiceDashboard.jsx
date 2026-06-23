@@ -93,7 +93,7 @@ function formFromService(svc) {
 }
 
 export default function ManagerServiceDashboard() {
-  const [services, setServices] = useState(MOCK_SERVICES);
+  const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState("list");
   const [activeServiceId, setActiveServiceId] = useState(null);

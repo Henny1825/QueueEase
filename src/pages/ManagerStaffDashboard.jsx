@@ -59,6 +59,7 @@ const staffApi = {
   async remove(id) {
     return authFetch(`/api/staff/${id}/delete`, { method: "DELETE" });
   },
+  
 };
 
 function emptyForm() {
@@ -85,12 +86,13 @@ function formFromStaff(s) {
 }
 
 export default function ManagerStaffDashboard() {
-  const [staff, setStaff] = useState(MOCK_STAFF);
+  const [staff, setStaff] = useState([]);
   const [mode, setMode] = useState("list");
   const [activeStaffId, setActiveStaffId] = useState(null);
   const [showRemoveModal, setShowRemoveModal] = useState(false);
   const [removeTargetId, setRemoveTargetId] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [services, setServices] = useState([]);
   const [actionError, setActionError] = useState("");
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -109,6 +111,13 @@ export default function ManagerStaffDashboard() {
       .catch((err) => {
         console.error("Failed to load staff list:", err);
       });
+
+    authFetch("/api/service")
+      .then(data => {
+        const list = Array.isArray(data) ? data : data?.services || data?.data || [];
+        setServices(list);
+      })
+      .catch(() => {});
   }, []);
 
   const stats = useMemo(() => {
@@ -511,15 +520,20 @@ export default function ManagerStaffDashboard() {
                 </Field>
               )}
               {!isEdit && (
-                <Field label="Service ID" error={formErrors.serviceId}>
-                  <input
-                    type="text"
-                    value={form.serviceId || ""}
-                    onChange={(e) => updateField("serviceId", e.target.value)}
-                    placeholder="Paste a valid Service UUID or leave blank"
-                  />
-                </Field>
-              )}
+              <Field label="Assign to Service" error={formErrors.serviceId}>
+                <select
+                  value={form.serviceId || ""}
+                  onChange={(e) => updateField("serviceId", e.target.value)}
+                >
+                  <option value="">No service assigned</option>
+                  {services.map(s => (
+                    <option key={s.id} value={s.id}>
+                      {s.name} ({s.code || s.id})
+                    </option>
+                  ))}
+                </select>
+              </Field>
+            )}
             </div>
           </div>
 

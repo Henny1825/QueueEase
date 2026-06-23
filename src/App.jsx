@@ -165,7 +165,7 @@ export default function QueueEase() {
   if (role === "citizen") return "customer";
   return "landing";
 });
-  const [queue, setQueue] = useState(initQueue);
+  const [queue, setQueue] = useState({});
   // eslint-disable-next-line no-unused-vars
   const [myTickets, setMyTickets] = useState([]);
   const [toast, setToast] = useState(null);
