@@ -18,14 +18,14 @@ const authFetch = async (path, options = {}) => {
 };
 
 const MOCK_STAFF = [
-  { id: "STF001", name: "Adaeze Okafor", email: "adaeze.okafor@queueease.com", phone: "+234 802 123 4567", role: "Officer", department: "Immigration", status: "Active", joinedDate: "2026-01-12" },
-  { id: "STF002", name: "Kwame Mensah", email: "kwame.mensah@queueease.com", phone: "+233 244 567 890", role: "Senior Officer", department: "Immigration", status: "Active", joinedDate: "2025-11-03" },
-  { id: "STF003", name: "Ngozi Eze", email: "ngozi.eze@queueease.com", phone: "+234 805 987 6543", role: "Officer", department: "Finance", status: "Active", joinedDate: "2026-02-20" },
-  { id: "STF004", name: "Yaw Boateng", email: "yaw.boateng@queueease.com", phone: "+233 209 112 233", role: "Officer", department: "Health", status: "Suspended", joinedDate: "2025-09-15" },
-  { id: "STF005", name: "Chidinma Obi", email: "chidinma.obi@queueease.com", phone: "+234 701 445 9981", role: "Supervisor", department: "Transport", status: "Active", joinedDate: "2025-07-01" },
+  { id: "STF001", name: "Adaeze Okafor", email: "adaeze.okafor@queueease.com", phone: "+234 802 123 4567", role: "staff", department: "Immigration", status: "Active", joinedDate: "2026-01-12" },
+  { id: "STF002", name: "Kwame Mensah", email: "kwame.mensah@queueease.com", phone: "+233 244 567 890", role: "staff", department: "Immigration", status: "Active", joinedDate: "2025-11-03" },
+  { id: "STF003", name: "Ngozi Eze", email: "ngozi.eze@queueease.com", phone: "+234 805 987 6543", role: "staff", department: "Finance", status: "Active", joinedDate: "2026-02-20" },
+  { id: "STF004", name: "Yaw Boateng", email: "yaw.boateng@queueease.com", phone: "+233 209 112 233", role: "staff", department: "Health", status: "Suspended", joinedDate: "2025-09-15" },
+  { id: "STF005", name: "Chidinma Obi", email: "chidinma.obi@queueease.com", phone: "+234 701 445 9981", role: "admin", department: "Transport", status: "Active", joinedDate: "2025-07-01" },
 ];
 
-const ROLES = ["Officer", "Senior Officer", "Supervisor"];
+const ROLES = ["staff", "admin"];
 const DEPARTMENTS = ["Immigration", "Finance", "Health", "Transport", "Civil Registry"];
 const PAGE_SIZE = 7;
 
@@ -62,14 +62,14 @@ const staffApi = {
 };
 
 function emptyForm() {
-  return {
-    name: "",
-    email: "",
-    phone: "",
-    password: "",
-    role: ROLES[0],
-    department: DEPARTMENTS[0],
-  };
+  return { 
+    name: "", 
+    email: "", 
+    phone: "", 
+    password: "", 
+    role: ROLES[0], 
+    department: DEPARTMENTS[0], 
+    serviceId: "" };
 }
 
 function formFromStaff(s) {
@@ -80,6 +80,7 @@ function formFromStaff(s) {
     password: "",
     role: s.role,
     department: s.department,
+    serviceId: s.serviceId || ""
   };
 }
 
@@ -114,8 +115,8 @@ export default function ManagerStaffDashboard() {
     const total = staff.length;
     const active = staff.filter((s) => s.status === "Active").length;
     const suspended = staff.filter((s) => s.status === "Suspended").length;
-    const supervisors = staff.filter((s) => s.role === "Supervisor").length;
-    return { total, active, suspended, supervisors };
+    const admins = staff.filter((s) => s.role === "admin").length;
+    return { total, active, suspended, admins };
   }, [staff]);
 
   const filteredStaff = useMemo(() => {
@@ -186,13 +187,13 @@ export default function ManagerStaffDashboard() {
     setSubmitting(true);
     try {
       const created = await staffApi.create({
-        name: form.name,
-        email: form.email,
+        name: form.name, 
+        email: form.email, 
         phone: form.phone,
-        password: form.password,
-        role: form.role,
-        serviceId: null,
-      });
+       password: form.password, 
+       role: form.role,
+      serviceId: form.serviceId?.trim() || null,
+    });
       setStaff((prev) => [created, ...prev]);
       backToList();
     } catch (err) {
@@ -319,7 +320,7 @@ export default function ManagerStaffDashboard() {
           <StatCard value={stats.total} label="Total Staff" tone="neutral" />
           <StatCard value={stats.active} label="Active Officers" tone="teal" />
           <StatCard value={stats.suspended} label="Suspended" tone="rose" />
-          <StatCard value={stats.supervisors} label="Supervisors" tone="amber" />
+          <StatCard value={stats.admins} label="Admins" tone="amber" />
         </div>
 
         <div className="stf-toolbar">
@@ -496,7 +497,7 @@ export default function ManagerStaffDashboard() {
                   type="tel"
                   value={form.phone}
                   onChange={(e) => updateField("phone", e.target.value)}
-                  placeholder="+234 802 123 4567"
+                  placeholder=" 080 000 0000"
                 />
               </Field>
               {!isEdit && (
@@ -506,6 +507,16 @@ export default function ManagerStaffDashboard() {
                     value={form.password || ""}
                     onChange={(e) => updateField("password", e.target.value)}
                     placeholder="Temporary password"
+                  />
+                </Field>
+              )}
+              {!isEdit && (
+                <Field label="Service ID" error={formErrors.serviceId}>
+                  <input
+                    type="text"
+                    value={form.serviceId || ""}
+                    onChange={(e) => updateField("serviceId", e.target.value)}
+                    placeholder="Paste a valid Service UUID or leave blank"
                   />
                 </Field>
               )}

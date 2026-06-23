@@ -157,7 +157,14 @@ const Icon = ({name,size=16,color="currentColor"}) => {
 };
 
 export default function QueueEase() {
-  const [view, setView] = useState("landing");
+  const [view, setView] = useState(() => {
+  if (typeof window === "undefined") return "landing";
+  const role = localStorage.getItem("userRole");
+  if (role === "officer") return "admin";
+  if (role === "owner") return "manager_services";
+  if (role === "citizen") return "customer";
+  return "landing";
+});
   const [queue, setQueue] = useState(initQueue);
   // eslint-disable-next-line no-unused-vars
   const [myTickets, setMyTickets] = useState([]);
@@ -245,16 +252,6 @@ export default function QueueEase() {
     showToast("Ticket cancelled.","warning");
   };
 
-  useEffect(()=>{const t=setInterval(()=>setTick(x=>x+1),5000);return()=>clearInterval(t);},[]);
-
-  
-useEffect(()=>{
-  const role=localStorage.getItem("userRole");
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  if(role==="officer") setView("admin");
-  if(role==="owner") setView("manager_services");
-  if(role==="citizen") setView("customer");
-},[]);
 
   const adminOrg = ORGS.find(o=>o.id===aOrg);
   const adminQueue = queue[aOrg]?.[aSvc];
