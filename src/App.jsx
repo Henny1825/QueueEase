@@ -120,7 +120,7 @@ const initQueue = () => {
 
 const fmtTime = (d) => d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
 
-const API_BASE = "https://queue-ease-apis.onrender.com";
+const API_BASE = "https://queue-ease-apis.onrender.com/api";
 // eslint-disable-next-line no-unused-vars
 const apiFetch = async (path, options={}) => {
   const token = localStorage.getItem("token");
@@ -348,6 +348,7 @@ export default function QueueEase() {
             onJoinQueue={({orgId, service})=>
               joinQueue({orgId, service, phone:"+233000000000", channel:"web"})
             }
+            apiFetch={apiFetch}
           />
         )}
 
