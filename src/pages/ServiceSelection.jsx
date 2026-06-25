@@ -10,17 +10,20 @@ const getGreeting = () => {
 export default function ServiceSelection({ orgs, queue, onJoinQueue, apiFetch }) {
   const [search, setSearch] = useState("");
   const [selectedKey, setSelectedKey] = useState(null);
+  const [services, setServices] = useState([]);
 
   // Fetch services
   useEffect(() => {
     const getServices = async() => {
       const data = await apiFetch('/service');
-      console.log(data);
+      console.log(data.data);
+      
+      setServices(data.data);
     }
+    
+    getServices();
 
-    getServices;
-
-  }, []);
+  }, [apiFetch]);
   
 
   const allServices = orgs.flatMap(o =>

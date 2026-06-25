@@ -89,6 +89,7 @@ const allNavItems = [
   {id:"manager_staff",    icon:"users",    label:"Staff"},
 ];
 
+
 const ORGS = [
   {id:"GHS001",name:"Ganah Health Service – Accra",  services:["General OPD","Lab Tests","Pharmacy","Specialist Consult"],avgMins:8},
   {id:"DVLA02",name:"DVLA Licensing Office",          services:["New License","Renewal","Road Worthiness","Plate Collection"],avgMins:12},
@@ -414,8 +415,13 @@ export default function QueueEase() {
             <NextInQueue
               ticketId={currentTicket.id}
               orgName={currentTicket.orgName}
-              onImOnMyWay={()=>showToast("Officer notified you're on your way.","info")}
-              onNeedMoreTime={()=>showToast("Noted — take your time.","warning")}
+              onImOnMyWay={() =>
+                showToast("Officer notified you're on your way.", "info")
+              }
+              onNeedMoreTime={() =>
+                showToast("Noted — take your time.", "warning")
+              }
+              onBack={() => setView("queue_confirmation")}
             />
           );
 

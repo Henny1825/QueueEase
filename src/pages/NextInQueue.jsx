@@ -51,6 +51,8 @@ const NextInQueue = ({
           font-size:24px;
           cursor:pointer;
           color:#000;
+          z-index: 999;
+          position: relative;
         }
 
         .alert-card{
