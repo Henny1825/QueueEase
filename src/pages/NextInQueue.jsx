@@ -237,9 +237,11 @@ const NextInQueue = () => {
             <div className="stat-label">
               Estimated Wait
             </div>
-            <div className="stat-value">
-              &lt; 2 mins
-            </div>
+            <div className="stat-card">
+            <FaClock />
+            <div className="stat-label">Estimated Wait</div>
+            {/* Wrapped the string safely to prevent syntax crashes */}
+            <div className="stat-value">{"< 2 mins"}</div></div>
           </div>
 
           <div className="stat-card">
