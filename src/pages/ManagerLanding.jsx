@@ -19,7 +19,7 @@ export default function ManagerLanding({ onSignupClick }) {
           
           {/* LEFT: Content */}
           <div>
-            <h1 className="syne" style={{ fontSize: 48, fontWeight: 800, lineHeight: 1.1, letterSpacing: "-0.02em", marginBottom: 16 }}>
+            <h1 className="syne" style={{ fontSize: 48, fontWeight: 800, lineHeight: 1.1, letterSpacing: "-0.02em", marginBottom: 16, overflowWrap: "anywhere" }}>
               Real-time insights. Smarter queue management.
             </h1>
             <p style={{ fontSize: 18, color: "var(--muted)", lineHeight: 1.6, marginBottom: 28 }}>

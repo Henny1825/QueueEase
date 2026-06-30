@@ -20,7 +20,7 @@ export default function OfficerLanding({ onLoginAsOfficer = () => {} }) {
           
           {/* LEFT: Content */}
           <div>
-            <h1 className="syne" style={{ fontSize: 48, fontWeight: 800, lineHeight: 1.1, letterSpacing: "-0.02em", marginBottom: 16 }}>
+            <h1 className="syne" style={{ fontSize: 48, fontWeight: 800, lineHeight: 1.1, letterSpacing: "-0.02em", marginBottom: 16, overflowWrap: "anywhere" }}>
               Serve customers faster. Reduce queue chaos.
             </h1>
             <p style={{ fontSize: 18, color: "var(--muted)", lineHeight: 1.6, marginBottom: 28 }}>
@@ -115,7 +115,7 @@ export default function OfficerLanding({ onLoginAsOfficer = () => {} }) {
       {/* ── BENEFITS ────────────────────────────────────────── */}
       <section style={{ padding: "60px 20px", background: "var(--card)" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <h2 className="syne" style={{ fontSize: 36, fontWeight: 800, textAlign: "center", marginBottom: 50 }}>
+          <h2 className="syne" style={{ fontSize: 36, fontWeight: 800, textAlign: "center", marginBottom: 50, overflowWrap: "anywhere" }}>
             Why Officers Love QueueEase
           </h2>
           
