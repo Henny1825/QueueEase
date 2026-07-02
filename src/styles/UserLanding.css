@@ -168,7 +168,6 @@
   margin: 0;
 }
 
-
 /* ----------------- CTA SECTION ------------------- */
 .cta-section {
   padding: 3.75rem 1.25rem;
@@ -196,4 +195,13 @@
 .cta-btn.btn.btn-primary {
   font-size: 1rem;
   padding: 1rem 2.5rem;
+}
+
+
+@media (max-width: 800px) {
+  .phone-container {
+    height: 28rem;
+    border-radius: 1rem;
+    border: 8px solid var(--ink);
+  }
 }

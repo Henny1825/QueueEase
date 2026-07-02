@@ -5,14 +5,14 @@ export default function OfficerLanding({ onLoginAsOfficer = () => {} }) {
   const [hoveredBenefit, setHoveredBenefit] = useState(null);
 
   return (
-    <div className="fade-up flex flex-col gap-0">
+    <div className="fade-up flex flex-col ">
       {/* ── HERO SECTION ────────────────────────────────────── */}
       <section className="hero-section">
-        <div className="hero-container">
+        <div className="hero-container ">
           {/* LEFT: Content */}
           <div>
-            <h1 className="syne hero-heading">
-              Serve customers faster. Reduce queue chaos.
+            <h1 className="syne hero-heading ">
+              Serve custom&shy;ers faster. Reduce queue chaos.
             </h1>
             <p className="hero-paragraph">
               Real-time queue management at your fingertips. One click. Next
@@ -109,10 +109,10 @@ export default function OfficerLanding({ onLoginAsOfficer = () => {} }) {
       <section className="benefits-workflow-cta-section">
         <div className="benefits-workflow-cta-container">
           <h2 className="syne benefits-workflow-cta-heading">
-            Why Officers Love QueueEase
+            Why Officers Love Queue&shy;Ease
           </h2>
 
-          <div className="grid grid-cols-3 gap-7">
+          <div className="cards grid grid-cols-3 gap-7">
             {[
               {
                 icon: "⚡",
@@ -157,10 +157,10 @@ export default function OfficerLanding({ onLoginAsOfficer = () => {} }) {
       <section className="benefits-workflow-cta-section">
         <div className="benefits-workflow-cta-container">
           <h2 className="syne benefits-workflow-cta-heading">
-            Your Daily Workflow
+            Your Daily Work&shy;flow
           </h2>
 
-          <div className="grid grid-cols-3 gap-6">
+          <div className="cards grid grid-cols-3 gap-6">
             {[
               {
                 num: 1,

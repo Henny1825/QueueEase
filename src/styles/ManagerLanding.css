@@ -215,3 +215,35 @@
   font-size: 1rem;
   padding: 1rem 2.5rem;
 }
+
+@media (max-width: 800px) {
+  .hero-container {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .hero-container > div > div {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 680px) {
+  .cards {
+    display: grid;
+    grid-template-columns: 1fr;
+    max-width: 15.625rem;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 500px) {
+  .hero-heading {
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 425px) {
+  .analytics-container {
+    width: 100%;
+  }
+}

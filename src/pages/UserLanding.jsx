@@ -96,9 +96,9 @@ export default function CitizenLanding({ onStartQueuing }) {
       {/* ── FEATURES ────────────────────────────────────────── */}
       <section className="features-section">
         <div className="features-container">
-          <h2 className="syne features-heading">Why Choose QueueEase?</h2>
+          <h2 className="syne features-heading">Why Choose Queue&shy;Ease?</h2>
 
-          <div className="grid grid-cols-3 gap-7">
+          <div className="cards grid grid-cols-3 gap-7">
             {[
               {
                 icon: "📱",

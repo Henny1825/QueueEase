@@ -12,7 +12,7 @@ export default function ManagerLanding({ onSignupClick }) {
           {/* LEFT: Content */}
           <div>
             <h1 className="syne hero-heading">
-              Real-time insights. Smarter queue management.
+              Real-<wbr/>time insights. Smarter queue manage&shy;ment.
             </h1>
             <p className="hero-paragraph">
               Monitor queue performance across all organizations. Data-driven
@@ -109,10 +109,10 @@ export default function ManagerLanding({ onSignupClick }) {
       <section className="monitor-cta-section">
         <div className="monitor-use-case-cta-container">
           <h2 className="syne monitor-use-case-cta-heading">
-            Monitor Everything That Matters
+            Monitor Every&shy;thing That Matters
           </h2>
 
-          <div className="grid grid-cols-3 gap-7">
+          <div className="cards grid grid-cols-3 gap-7">
             {[
               {
                 icon: "📈",
@@ -160,7 +160,7 @@ export default function ManagerLanding({ onSignupClick }) {
             Make Data-Driven Decisions
           </h2>
 
-          <div className="grid grid-cols-3 gap-7">
+          <div className="cards grid grid-cols-3 gap-7">
             {[
               {
                 title: "Optimize Staffing",
