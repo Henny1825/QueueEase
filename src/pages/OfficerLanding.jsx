@@ -42,7 +42,7 @@ export default function OfficerLanding({ onLoginAsOfficer = () => {} }) {
 
           {/* RIGHT: Dashboard mockup */}
           <div className="flex justify-center">
-            <div className="phone-container">
+            <div className="phone-cont">
               {/* Header */}
               <div className="phone-heading">Staff Dashboard</div>
 
