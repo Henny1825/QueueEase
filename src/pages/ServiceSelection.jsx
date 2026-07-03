@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const getGreeting = () => {
   const h = new Date().getHours();
@@ -7,9 +7,24 @@ const getGreeting = () => {
   return "Good Evening";
 };
 
-export default function ServiceSelection({ orgs, queue, onJoinQueue }) {
+export default function ServiceSelection({ orgs, queue, onJoinQueue, apiFetch }) {
   const [search, setSearch] = useState("");
   const [selectedKey, setSelectedKey] = useState(null);
+  const [services, setServices] = useState([]);
+
+  // Fetch services
+  useEffect(() => {
+    const getServices = async() => {
+      const data = await apiFetch('/service');
+      console.log(data.data);
+      
+      setServices(data.data);
+    }
+    
+    getServices();
+
+  }, [apiFetch]);
+  
 
   const allServices = orgs.flatMap(o =>
     o.services.map(s => ({

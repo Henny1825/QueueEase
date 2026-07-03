@@ -13,7 +13,18 @@ const authFetch = async (path, options = {}) => {
     },
   });
   const data = await res.json().catch(() => null);
-  if (!res.ok) throw new Error(data?.message || `Request failed (${res.status})`);
+
+  if (!res.ok) {
+    let errorMessage = data?.message || `Request failed (${data.status})`;
+
+    if (data?.errors?.properties) {
+      errorMessage = Object.values(data.errors.properties)
+        .flatMap((field) => field.errors)
+        .join(", ");
+    }
+
+    throw new Error(errorMessage);
+  }
   return data;
 };
 
@@ -200,6 +211,7 @@ export default function ManagerServiceDashboard() {
     if (!form.closingTime) errors.closingTime = "Closing time is required";
     if (form.operatingDays.length === 0) errors.operatingDays = "Select at least one operating day";
     return errors;
+    
   }
 
   async function handleCreateSubmit(e) {
@@ -210,6 +222,7 @@ export default function ManagerServiceDashboard() {
     setSubmitting(true);
     try {
       const created = await serviceApi.create(form);
+     
       setServices((prev) => [{
         ...form,
         ...created,
@@ -429,7 +442,7 @@ export default function ManagerServiceDashboard() {
                   type="text"
                   value={form.serviceCode}
                   onChange={(e) => updateField("serviceCode", e.target.value)}
-                  placeholder="PASSPORT001"
+                  placeholder="001"
                   disabled={isEdit}
                 />
               </Field>

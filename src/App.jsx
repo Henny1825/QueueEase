@@ -89,6 +89,7 @@ const allNavItems = [
   {id:"manager_staff",    icon:"users",    label:"Staff"},
 ];
 
+
 const ORGS = [
   {id:"GHS001",name:"Ganah Health Service – Accra",  services:["General OPD","Lab Tests","Pharmacy","Specialist Consult"],avgMins:8},
   {id:"DVLA02",name:"DVLA Licensing Office",          services:["New License","Renewal","Road Worthiness","Plate Collection"],avgMins:12},
@@ -120,7 +121,7 @@ const initQueue = () => {
 
 const fmtTime = (d) => d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
 
-const API_BASE = "https://queue-ease-apis.onrender.com";
+const API_BASE = "https://queue-ease-apis.onrender.com/api";
 // eslint-disable-next-line no-unused-vars
 const apiFetch = async (path, options={}) => {
   const token = localStorage.getItem("token");
@@ -348,6 +349,7 @@ export default function QueueEase() {
             onJoinQueue={({orgId, service})=>
               joinQueue({orgId, service, phone:"+233000000000", channel:"web"})
             }
+            apiFetch={apiFetch}
           />
         )}
 
@@ -413,8 +415,13 @@ export default function QueueEase() {
             <NextInQueue
               ticketId={currentTicket.id}
               orgName={currentTicket.orgName}
-              onImOnMyWay={()=>showToast("Officer notified you're on your way.","info")}
-              onNeedMoreTime={()=>showToast("Noted — take your time.","warning")}
+              onImOnMyWay={() =>
+                showToast("Officer notified you're on your way.", "info")
+              }
+              onNeedMoreTime={() =>
+                showToast("Noted — take your time.", "warning")
+              }
+              onBack={() => setView("queue_confirmation")}
             />
           );
 
