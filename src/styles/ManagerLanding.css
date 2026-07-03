@@ -216,6 +216,7 @@
   padding: 1rem 2.5rem;
 }
 
+/* ------------------------ TABLET AND PHONE SCREENS-------------------- */
 @media (max-width: 800px) {
   .hero-container {
     grid-template-columns: 1fr;
@@ -240,10 +241,41 @@
   .hero-heading {
     font-size: 2.5rem;
   }
+
+  .hero-section {
+    padding: 2rem 0;
+  }
 }
 
 @media (max-width: 425px) {
   .analytics-container {
     width: 100%;
+  }
+}
+
+@media (max-width: 375px) {
+  .hero-section {
+    padding: 1rem 0;
+  }
+
+  .manager-hero {
+    padding-top: 2.5rem;
+  }
+
+  .hero-heading {
+    font-size: 2rem;
+  }
+
+  .hero-btn.btn.btn-primary {
+    margin-bottom: 1.5rem;
+  }
+
+  .monitor-cta-section, .use-case-section {
+    padding: 2.5rem 0;
+  }
+
+  .monitor-use-case-cta-heading {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
   }
 }

@@ -11,7 +11,7 @@ export default function ManagerLanding({ onSignupClick }) {
         <div className="hero-container">
           {/* LEFT: Content */}
           <div>
-            <h1 className="syne hero-heading">
+            <h1 className="syne hero-heading manager-hero">
               Real-<wbr/>time insights. Smarter queue manage&shy;ment.
             </h1>
             <p className="hero-paragraph">

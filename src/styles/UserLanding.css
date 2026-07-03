@@ -197,11 +197,30 @@
   padding: 1rem 2.5rem;
 }
 
-
+/* ------------------------ TABLET AND PHONE SCREENS -------------------- */
 @media (max-width: 800px) {
   .phone-container {
     height: 28rem;
     border-radius: 1rem;
     border: 8px solid var(--ink);
+  }
+}
+
+@media (max-width: 375px) {
+  .features-section, .cta-section {
+    padding: 2.5rem 0;
+  }
+
+  .features-heading {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+  }
+
+  .cards {
+    gap:1rem;
+  }
+
+  .cta-heading {
+    font-size: 1.8rem;
   }
 }

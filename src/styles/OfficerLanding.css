@@ -241,8 +241,27 @@
   padding: 1rem 2.5rem;
 }
 
+/* ---------------------------- TABLET AND PHONE SCREENS ------------------ */
 @media (max-width: 425px) {
   .phone-cont {
     width: 100%;
+  }
+  .benefits-workflow-cta-section {
+    padding: 2.5rem 1.25rem 0;
+  }
+}
+
+@media (max-width: 375px) {
+  .benefits-workflow-cta-section {
+    padding: 2.5rem 0 0;
+  }
+
+  .benefits-workflow-cta-heading {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+  }
+
+  .benefits-workflow-cta-container>.cta-btn.btn.btn-primary {
+    margin-bottom: 2.5rem;
   }
 }
